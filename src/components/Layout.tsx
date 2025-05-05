@@ -111,7 +111,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <footer className="py-6 px-4 bg-white border-t border-gray-100 text-sm text-gray-500">
         <div className="container-custom text-center">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p>© 2025 Le Chemin des Arts - Polémieux-au-Mont-d'Or</p>
+            <p>© 2025 Le Chemin des Arts - Poleymieux Au Mont d'Or</p>
             <div className="flex gap-4">
               <Link to="/legal" className="hover:underline">Mentions légales</Link>
               <Link to="/admin" className="hover:underline text-gray-400">Administration</Link>

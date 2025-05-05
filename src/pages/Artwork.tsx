@@ -7,6 +7,8 @@ import StarRating from '@/components/StarRating';
 import { artworks } from '@/data/artworks';
 import { saveFeedback } from '@/utils/storage';
 import QRCodeGenerator from '@/components/QRCodeGenerator';
+import { Link } from 'react-router-dom';
+import { Mail, Phone, Instagram, Link as LinkIcon } from 'lucide-react';
 
 const Artwork = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -107,6 +109,42 @@ const Artwork = () => {
               </div>
             </div>
           </div>
+          
+          {artwork.artistInfo && (
+            <div className="card mb-6">
+              <h2 className="mb-4 text-xl font-medium">À propos de l'artiste</h2>
+              <p className="mb-4">{artwork.artistInfo.bio}</p>
+              
+              {(artwork.artistInfo.email || artwork.artistInfo.phone || artwork.artistInfo.website || artwork.artistInfo.instagram) && (
+                <div className="mt-4 flex flex-wrap gap-3">
+                  {artwork.artistInfo.email && (
+                    <a href={`mailto:${artwork.artistInfo.email}`} className="flex items-center gap-2 text-artPath-accent hover:underline">
+                      <Mail size={16} />
+                      <span>Contact</span>
+                    </a>
+                  )}
+                  {artwork.artistInfo.phone && (
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <Phone size={16} />
+                      <span>{artwork.artistInfo.phone}</span>
+                    </div>
+                  )}
+                  {artwork.artistInfo.website && (
+                    <a href={`https://${artwork.artistInfo.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-artPath-accent hover:underline">
+                      <LinkIcon size={16} />
+                      <span>Site web</span>
+                    </a>
+                  )}
+                  {artwork.artistInfo.instagram && (
+                    <a href={`https://instagram.com/${artwork.artistInfo.instagram}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-artPath-accent hover:underline">
+                      <Instagram size={16} />
+                      <span>Instagram</span>
+                    </a>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
           
           <div className="card">
             <h2 className="mb-6 text-center">Partagez votre expérience</h2>
