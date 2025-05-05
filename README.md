@@ -1,73 +1,104 @@
-# Welcome to your Lovable project
 
-## Project info
+# Le Chemin des Arts - Application de feedback pour parcours artistique
 
-**URL**: https://lovable.dev/projects/62b62747-1a3e-4a04-a543-4116dc972ff7
+Application web permettant de collecter les avis des visiteurs sur chaque œuvre d'un parcours artistique via des QR codes.
 
-## How can I edit this code?
+## Fonctionnalités
 
-There are several ways of editing your application.
+- Page d'accueil et présentation de l'événement
+- Pages dédiées pour 12 œuvres fictives avec formulaires de feedback
+- Notation par étoiles et commentaires
+- Comptage des visiteurs par œuvre
+- Tableau de bord administratif avec statistiques
+- Génération de QR codes pour chaque œuvre
+- Export CSV des données collectées
 
-**Use Lovable**
+## Comment utiliser cette application
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/62b62747-1a3e-4a04-a543-4116dc972ff7) and start prompting.
+### 1. Accès à l'interface administrateur
 
-Changes made via Lovable will be committed automatically to this repo.
+Pour accéder au tableau de bord administratif:
+- Naviguez vers la page `/admin`
+- Utilisez le mot de passe: `artpath2025`
 
-**Use your preferred IDE**
+Vous pouvez également accéder directement via cette URL: `/admin?token=artpath2025`
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### 2. Personnaliser les œuvres
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+Pour modifier les œuvres existantes ou en ajouter de nouvelles, éditez le fichier `src/data/artworks.ts`.
 
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+Structure d'une œuvre:
+```typescript
+{
+  id: number,          // Identifiant unique
+  title: string,       // Titre de l'œuvre
+  artist: string,      // Nom de l'artiste
+  description: string, // Description de l'œuvre
+  slug: string,        // URL de la page (ex: "oeuvre-1")
+  image: string        // URL de l'image
+}
 ```
 
-**Edit a file directly in GitHub**
+### 3. Générer des QR codes pour l'impression
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Les QR codes sont générés automatiquement dans l'interface. Pour les imprimer:
+1. Accédez à la page `/explore` qui liste toutes les œuvres avec leurs QR codes
+2. Utilisez la fonction d'impression de votre navigateur
+3. Sélectionnez uniquement les QR codes que vous souhaitez imprimer
 
-**Use GitHub Codespaces**
+Alternativement, vous pouvez accéder directement à la page d'une œuvre pour afficher son QR code individuel.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### 4. Exporter les données
 
-## What technologies are used for this project?
+Depuis l'interface administrateur (`/admin`), vous pouvez:
+- Visualiser les statistiques de visite pour chaque œuvre
+- Voir la répartition des tailles de groupe
+- Exporter toutes les données au format CSV
 
-This project is built with:
+### 5. Stockage des données
 
-- Vite
-- TypeScript
+Cette application utilise le stockage local du navigateur (localStorage) pour stocker les données de feedback.
+Pour une utilisation en production, il est recommandé d'implémenter une solution de stockage plus robuste:
+
+- Intégration avec Google Sheets via Google Apps Script
+- Utilisation de services comme Formspree, Getform, ou un webhook simple
+- Base de données légère comme Supabase ou Firebase
+
+## Déploiement
+
+Cette application peut être déployée gratuitement sur:
+- GitHub Pages
+- Netlify
+- Vercel
+
+Instructions:
+1. Clonez ce dépôt
+2. Installez les dépendances: `npm install`
+3. Construisez l'application: `npm run build`
+4. Déployez le contenu du dossier `dist`
+
+## Technologies utilisées
+
 - React
-- shadcn-ui
+- TypeScript
 - Tailwind CSS
+- React Router
+- QRCode.react pour la génération des QR codes
+- Recharts pour les graphiques dans le tableau de bord
 
-## How can I deploy this project?
+## Personnalisation avancée
 
-Simply open [Lovable](https://lovable.dev/projects/62b62747-1a3e-4a04-a543-4116dc972ff7) and click on Share -> Publish.
+### Modifier l'apparence
 
-## Can I connect a custom domain to my Lovable project?
+Les couleurs et styles principaux sont définis dans:
+- `tailwind.config.ts` - Configuration des thèmes et couleurs
+- `src/index.css` - Styles globaux et variables
 
-Yes, you can!
+### Ajouter de nouvelles pages
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+1. Créez un nouveau fichier dans `src/pages/`
+2. Ajoutez la route dans `src/App.tsx`
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+---
+
+© 2025 Le Chemin des Arts
