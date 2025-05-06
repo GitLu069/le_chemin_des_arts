@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Layout from '@/components/Layout';
-import { locations, getArtworksByLocation } from '@/data/locations';
+import { locations } from '@/data/locations';
 import { MapPin, ArrowRight } from 'lucide-react';
+import FeedbackForm from '@/components/FeedbackForm';
 
 const Location = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -26,8 +27,6 @@ const Location = () => {
       </Layout>
     );
   }
-
-  const locationArtworks = getArtworksByLocation(location.id);
   
   return (
     <Layout>
@@ -50,7 +49,7 @@ const Location = () => {
             
             {location.artists.length > 0 ? (
               <div className="p-4 bg-artPath-cream/30 rounded-lg">
-                <h3 className="mb-2">Artistes présentés à cet endroit :</h3>
+                <h3 className="mb-2">Artistes présents à cet endroit :</h3>
                 <ul className="list-disc list-inside space-y-1 ml-2">
                   {location.artists.map((artist, index) => (
                     <li key={index}>{artist}</li>
@@ -66,40 +65,10 @@ const Location = () => {
             )}
           </div>
           
-          {locationArtworks.length > 0 ? (
-            <>
-              <h2 className="mb-4">Œuvres exposées</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
-                {locationArtworks.map((artwork) => (
-                  <div key={artwork.id} className="card hover:shadow-md transition-shadow animate-scale-in">
-                    <img 
-                      src={`${artwork.image}?auto=format&fit=crop&w=600&h=400&q=80`} 
-                      alt={artwork.title} 
-                      className="w-full h-48 object-cover rounded-lg mb-4"
-                    />
-                    
-                    <h3 className="mb-2">{artwork.title}</h3>
-                    <p className="text-gray-600 mb-3">par {artwork.artist}</p>
-                    
-                    <Link 
-                      to={`/${artwork.slug}`} 
-                      className="btn-secondary py-2 w-full block text-center"
-                    >
-                      Découvrir l'œuvre
-                    </Link>
-                  </div>
-                ))}
-              </div>
-            </>
-          ) : (
-            location.artists.length === 0 && (
-              <div className="card text-center">
-                <p className="text-gray-600">
-                  Les œuvres exposées à cet endroit seront annoncées prochainement.
-                </p>
-              </div>
-            )
-          )}
+          <div className="card mb-8">
+            <h2 className="text-xl font-medium mb-4">Votre avis nous intéresse</h2>
+            <FeedbackForm locationId={location.id} />
+          </div>
         </div>
       </div>
     </Layout>

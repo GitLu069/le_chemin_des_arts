@@ -101,5 +101,8 @@
   .location-card-header {
     @apply bg-gradient-to-r from-artPath-accent/80 to-artPath-accent rounded-t-xl p-4 text-white;
   }
+  
+  .text-shadow {
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  }
 }
-

@@ -2,10 +2,11 @@
 import { toast } from "@/hooks/use-toast";
 
 export interface FeedbackEntry {
-  artworkId: number;
+  locationId: number;
   groupSize: number;
   rating: number;
   comment: string;
+  name?: string;
   timestamp: string;
 }
 
@@ -39,10 +40,10 @@ export const getFeedbackData = (): FeedbackEntry[] => {
   }
 };
 
-// Get feedback for a specific artwork
-export const getArtworkFeedback = (artworkId: number): FeedbackEntry[] => {
+// Get feedback for a specific location
+export const getLocationFeedback = (locationId: number): FeedbackEntry[] => {
   const allFeedback = getFeedbackData();
-  return allFeedback.filter(entry => entry.artworkId === artworkId);
+  return allFeedback.filter(entry => entry.locationId === locationId);
 };
 
 // Clear all feedback data (for testing purposes)
@@ -51,21 +52,21 @@ export const clearFeedbackData = (): void => {
   console.log('All feedback data cleared');
 };
 
-// Get statistics for all artworks
+// Get statistics for all locations
 export const getFeedbackStats = () => {
   const allFeedback = getFeedbackData();
   
-  // Group by artwork ID
-  const byArtwork = allFeedback.reduce((acc, entry) => {
-    if (!acc[entry.artworkId]) {
-      acc[entry.artworkId] = [];
+  // Group by location ID
+  const byLocation = allFeedback.reduce((acc, entry) => {
+    if (!acc[entry.locationId]) {
+      acc[entry.locationId] = [];
     }
-    acc[entry.artworkId].push(entry);
+    acc[entry.locationId].push(entry);
     return acc;
   }, {} as Record<number, FeedbackEntry[]>);
   
-  // Calculate statistics for each artwork
-  const stats = Object.entries(byArtwork).map(([artworkId, entries]) => {
+  // Calculate statistics for each location
+  const stats = Object.entries(byLocation).map(([locationId, entries]) => {
     const totalVisitors = entries.reduce((sum, entry) => sum + entry.groupSize, 0);
     const avgRating = entries.length 
       ? entries.reduce((sum, entry) => sum + entry.rating, 0) / entries.length
@@ -81,7 +82,7 @@ export const getFeedbackStats = () => {
     }, {} as Record<number, number>);
     
     return {
-      artworkId: Number(artworkId),
+      locationId: Number(locationId),
       totalFeedbacks: entries.length,
       totalVisitors,
       avgRating,
@@ -97,10 +98,11 @@ export const exportFeedbackCSV = (): string => {
   const allFeedback = getFeedbackData();
   if (allFeedback.length === 0) return '';
   
-  const headers = "ArtworkID,GroupSize,Rating,Comment,Timestamp\n";
+  const headers = "LocationID,GroupSize,Rating,Comment,Name,Timestamp\n";
   const rows = allFeedback.map(entry => {
     const comment = entry.comment ? `"${entry.comment.replace(/"/g, '""')}"` : '';
-    return `${entry.artworkId},${entry.groupSize},${entry.rating},${comment},${entry.timestamp}`;
+    const name = entry.name ? `"${entry.name.replace(/"/g, '""')}"` : '';
+    return `${entry.locationId},${entry.groupSize},${entry.rating},${comment},${name},${entry.timestamp}`;
   }).join('\n');
   
   return headers + rows;

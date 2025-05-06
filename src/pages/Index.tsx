@@ -2,6 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '@/components/Layout';
+import { Leaf } from 'lucide-react';
 
 const Index = () => {
   return (
@@ -18,9 +19,12 @@ const Index = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-artPath-lightBg via-transparent to-transparent" />
         
         <div className="absolute inset-0 flex flex-col justify-center items-center text-center text-white p-4">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-shadow">
-            Le Chemin des Arts – 2025
-          </h1>
+          <div className="flex items-center gap-2 mb-3">
+            <Leaf className="h-6 w-6 text-artPath-cream" />
+            <h1 className="text-4xl md:text-5xl font-bold text-shadow">
+              Le Chemin des Arts – 2025
+            </h1>
+          </div>
           <p className="text-xl md:text-2xl max-w-2xl text-shadow">
             Expositions artistiques dans les paysages de Poleymieux-au-Mont-d'Or
           </p>

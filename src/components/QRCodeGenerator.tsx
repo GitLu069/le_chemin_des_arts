@@ -20,7 +20,6 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ url, size = 128 }) =>
       </div>
       <div className="text-sm text-gray-500 mt-2 text-center">
         <p>Scannez pour accéder</p>
-        <p className="text-xs break-all">{fullUrl}</p>
       </div>
     </div>
   );

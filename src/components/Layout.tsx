@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, ChevronDown } from 'lucide-react';
+import { Menu, X, Leaf } from 'lucide-react';
 import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuLink, NavigationMenuTrigger, NavigationMenuContent } from '@/components/ui/navigation-menu';
 
 interface LayoutProps {
@@ -22,7 +22,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     <div className="min-h-screen flex flex-col bg-artPath-lightBg">
       <header className="py-4 px-4 bg-white shadow-sm sticky top-0 z-30">
         <div className="container-custom flex justify-between items-center">
-          <Link to="/" className="text-artPath-text font-display font-bold text-xl">
+          <Link to="/" className="text-artPath-text font-display font-bold text-xl flex items-center">
+            <Leaf className="h-5 w-5 text-artPath-accent mr-2" />
             Le Chemin des Arts
           </Link>
           
@@ -103,7 +104,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <footer className="py-6 px-4 bg-white border-t border-gray-100 text-sm text-gray-500">
         <div className="container-custom text-center">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p>© 2025 Le Chemin des Arts - Poleymieux Au Mont d'Or</p>
+            <p>© 2025 Le Chemin des Arts - Poleymieux-au-Mont-d'Or</p>
             <div className="flex gap-4">
               <Link to="/legal" className="hover:underline">Mentions légales</Link>
               <Link to="/admin" className="hover:underline text-gray-400">Administration</Link>
