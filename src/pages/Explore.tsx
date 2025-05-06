@@ -2,36 +2,67 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '@/components/Layout';
-import { artworks } from '@/data/artworks';
+import { locations } from '@/data/locations';
 import QRCodeGenerator from '@/components/QRCodeGenerator';
+import { MapPin, TreeDeciduous } from 'lucide-react';
 
 const Explore = () => {
   return (
     <Layout>
       <div className="container-custom py-8 animate-fade-in">
-        <h1 className="text-center mb-8 text-artPath-text">Explorez les Œuvres</h1>
+        <div className="max-w-4xl mx-auto mb-8 text-center">
+          <h1 className="mb-4 text-artPath-text">Parcours Artistique</h1>
+          <p className="text-lg mb-6 text-gray-600">
+            Découvrez les œuvres d'art à travers différents lieux emblématiques 
+            de Poleymieux-au-Mont-d'Or. Scannez le QR code à chaque lieu pour une 
+            expérience immersive.
+          </p>
+        </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {artworks.map((artwork) => (
-            <div key={artwork.id} className="card hover:shadow-md transition-shadow animate-scale-in">
-              <img 
-                src={`${artwork.image}?auto=format&fit=crop&w=600&h=400&q=80`} 
-                alt={artwork.title} 
-                className="w-full h-48 object-cover rounded-lg mb-4" 
-              />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {locations.map((location) => (
+            <div key={location.id} className="location-card overflow-hidden flex flex-col h-full animate-scale-in">
+              <div className="location-card-header">
+                <h3 className="flex items-center gap-2">
+                  <MapPin className="h-5 w-5" />
+                  {location.name}
+                </h3>
+              </div>
               
-              <h3 className="mb-2">{artwork.title}</h3>
-              <p className="text-gray-600 mb-3">par {artwork.artist}</p>
+              <div className="p-5 flex-grow">
+                <p className="text-gray-600 mb-4">{location.description}</p>
+                
+                <div className="mb-4">
+                  <h4 className="text-lg font-medium mb-2 flex items-center gap-2">
+                    <TreeDeciduous className="h-4 w-4 text-artPath-accent" />
+                    {location.artists.length > 0 ? 'Artistes présentés' : 'Information'}
+                  </h4>
+                  
+                  {location.artists.length > 0 ? (
+                    <ul className="list-disc list-inside text-gray-600 space-y-1 ml-2">
+                      {location.artists.map((artist, index) => (
+                        <li key={index}>{artist}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-gray-500 italic">
+                      Lieu d'exposition ponctuelle accueillant diverses interventions artistiques.
+                    </p>
+                  )}
+                </div>
+              </div>
               
-              <div className="flex flex-col sm:flex-row gap-4 mt-4">
-                <Link 
-                  to={`/${artwork.slug}`} 
-                  className="btn-primary py-2 min-w-0 flex-1 text-center"
-                >
-                  Découvrir
-                </Link>
-                <div className="flex-1 flex justify-center">
-                  <QRCodeGenerator url={`/${artwork.slug}`} size={80} />
+              <div className="p-5 bg-artPath-cream/30 border-t border-artPath-cream flex flex-col sm:flex-row gap-4 items-center justify-between">
+                <div className="flex-shrink-0">
+                  <QRCodeGenerator url={`/location/${location.slug}`} size={100} />
+                </div>
+                <div className="flex-grow text-center sm:text-right">
+                  <Link 
+                    to={`/location/${location.slug}`} 
+                    className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-artPath-accent text-white hover:bg-green-700 transition-colors"
+                  >
+                    Découvrir ce lieu
+                  </Link>
                 </div>
               </div>
             </div>

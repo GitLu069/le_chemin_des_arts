@@ -49,13 +49,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                           </li>
                           <li className="p-1">
                             <NavigationMenuLink asChild>
-                              <Link to="/ampere2025" className="block p-2 hover:bg-gray-50 rounded-md">
-                                Ampère 2025
-                              </Link>
-                            </NavigationMenuLink>
-                          </li>
-                          <li className="p-1">
-                            <NavigationMenuLink asChild>
                               <Link to="/infos" className="block p-2 hover:bg-gray-50 rounded-md">
                                 Infos pratiques
                               </Link>
@@ -95,7 +88,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <li><Link to="/" className="block py-2" onClick={toggleMenu}>Accueil</Link></li>
                 <li><Link to="/explore" className="block py-2" onClick={toggleMenu}>Parcours</Link></li>
                 <li><Link to="/concours" className="block py-2" onClick={toggleMenu}>Concours Photo</Link></li>
-                <li><Link to="/ampere2025" className="block py-2" onClick={toggleMenu}>Ampère 2025</Link></li>
                 <li><Link to="/infos" className="block py-2" onClick={toggleMenu}>Infos pratiques</Link></li>
                 <li><Link to="/about" className="block py-2" onClick={toggleMenu}>À propos</Link></li>
               </ul>

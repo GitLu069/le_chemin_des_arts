@@ -64,11 +64,13 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				artPath: {
-					text: '#1A1F2C',
-					accent: '#3B82F6',
-					lightBg: '#F9FAFB',
-					darkBg: '#111827',
-					success: '#10B981'
+					text: '#3D3B30', // updated to more natural earthy tone
+					accent: '#7C9D64', // new green pastel color
+					lightBg: '#F8F5F2', // beige light
+					darkBg: '#3D3B30', // darker earthy tone
+					success: '#8AAA78', // green success
+					terracotta: '#E1A87A', // terracotta accent
+					cream: '#F2EEE6'  // cream color for backgrounds
 				}
 			},
 			fontFamily: {

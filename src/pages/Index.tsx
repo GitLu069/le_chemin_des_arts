@@ -2,25 +2,42 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '@/components/Layout';
-import { artworks } from '@/data/artworks';
 
 const Index = () => {
   return (
     <Layout>
+      {/* Hero Banner Section */}
+      <div className="relative w-full h-[50vh] md:h-[60vh] overflow-hidden">
+        <div 
+          className="absolute inset-0 bg-cover bg-center" 
+          style={{
+            backgroundImage: "url('https://images.unsplash.com/photo-1518723276788-13ecb9e00076?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1920&q=80')",
+            filter: "brightness(0.9)"
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-artPath-lightBg via-transparent to-transparent" />
+        
+        <div className="absolute inset-0 flex flex-col justify-center items-center text-center text-white p-4">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-shadow">
+            Le Chemin des Arts – 2025
+          </h1>
+          <p className="text-xl md:text-2xl max-w-2xl text-shadow">
+            Expositions artistiques dans les paysages de Poleymieux-au-Mont-d'Or
+          </p>
+        </div>
+      </div>
+      
       <div className="container-custom py-12 animate-fade-in">
         <div className="max-w-3xl mx-auto text-center">
-          <h1 className="mb-6 text-artPath-text">Le Chemin des Arts</h1>
-          
           <div className="card mb-8">
             <p className="text-lg mb-6">
-              Bienvenue dans cette aventure artistique à travers notre ville. Scannez les QR codes 
-              présents à côté des œuvres pour les découvrir, partager votre expérience et contribuer 
-              à améliorer cet événement culturel.
+              Bienvenue dans cette aventure artistique à travers notre village. Découvrez des créations 
+              uniques nichées dans les paysages pittoresques de Poleymieux-au-Mont-d'Or.
             </p>
             
             <div className="flex flex-col items-center gap-4">
               <Link to="/explore" className="btn-primary">
-                Commencer la visite
+                Découvrir le parcours
               </Link>
               <p className="text-sm text-gray-500">ou scannez un QR code près d'une œuvre</p>
             </div>
