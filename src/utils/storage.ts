@@ -1,230 +1,210 @@
+import { supabase } from '@/lib/supabase';
 
-import { toast } from "@/hooks/use-toast";
-import { supabase, checkSupabaseConnection, DbFeedback } from "@/lib/supabase";
-
-export interface FeedbackEntry {
+// Type definition for feedback entries
+export type FeedbackEntry = {
   locationId: number;
   groupSize: number;
   rating: number;
   comment: string;
-  name?: string;
+  name: string;
   timestamp: string;
-}
-
-const STORAGE_KEY = 'artpath_feedback_data';
-let useLocalStorage = true;
-
-// Initialize and check if we should use Supabase or localStorage
-const initStorage = async () => {
-  const connectionCheck = await checkSupabaseConnection();
-  useLocalStorage = !connectionCheck.success;
-  
-  if (useLocalStorage) {
-    console.log('Using local storage fallback for data');
-  } else {
-    console.log('Using Supabase for data storage');
-  }
-  return !useLocalStorage;
 };
 
-// Call this on app init
-initStorage();
+// Flag to enable/disable Supabase usage
+const supabaseEnabled = process.env.NEXT_PUBLIC_SUPABASE_ENABLED === 'true';
 
-// Convert FeedbackEntry to DbFeedback format
-const toDbFormat = (feedback: FeedbackEntry): DbFeedback => ({
-  location_id: feedback.locationId,
-  group_size: feedback.groupSize,
-  rating: feedback.rating,
-  comment: feedback.comment,
-  name: feedback.name,
-  timestamp: feedback.timestamp
-});
+// Function to save feedback to local storage
+export const saveFeedbackLocally = (feedback: FeedbackEntry): void => {
+  const key = `feedback_${feedback.locationId}`;
+  let existingFeedback = localStorage.getItem(key);
+  let feedbackArray: FeedbackEntry[] = existingFeedback ? JSON.parse(existingFeedback) : [];
+  feedbackArray.push(feedback);
+  localStorage.setItem(key, JSON.stringify(feedbackArray));
+};
 
-// Convert DbFeedback to FeedbackEntry format
-const fromDbFormat = (dbFeedback: DbFeedback): FeedbackEntry => ({
-  locationId: dbFeedback.location_id,
-  groupSize: dbFeedback.group_size,
-  rating: dbFeedback.rating,
-  comment: dbFeedback.comment || '',
-  name: dbFeedback.name,
-  timestamp: dbFeedback.timestamp
-});
-
-// Save feedback to Supabase or local storage
-export const saveFeedback = async (feedback: FeedbackEntry): Promise<void> => {
+// Async function to save feedback to Supabase
+export const saveFeedbackToSupabase = async (feedback: Omit<FeedbackEntry, 'locationId'> & { location_id: number }): Promise<void> => {
   try {
-    if (!useLocalStorage) {
-      // Try to save to Supabase
-      const { error } = await supabase
-        .from('feedback')
-        .insert(toDbFormat(feedback));
-      
-      if (error) throw error;
-    } else {
-      // Fallback to localStorage
-      const existingData: FeedbackEntry[] = getFeedbackData();
-      const updatedData = [...existingData, feedback];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedData));
-    }
+    const { data, error } = await supabase
+      .from('feedback')
+      .insert([feedback]);
     
-    console.log('Feedback saved successfully');
-  } catch (error) {
-    console.error('Error saving feedback:', error);
-    toast({
-      title: "Erreur",
-      description: "Impossible d'enregistrer votre feedback.",
-      variant: "destructive",
-    });
-  }
-};
-
-// Get all feedback data
-export const getFeedbackData = async (): Promise<FeedbackEntry[]> => {
-  try {
-    if (!useLocalStorage) {
-      // Get data from Supabase
-      const { data, error } = await supabase
-        .from('feedback')
-        .select('*');
-      
-      if (error) throw error;
-      return data ? data.map(fromDbFormat) : [];
-    } else {
-      // Get data from localStorage
-      const data = localStorage.getItem(STORAGE_KEY);
-      return data ? JSON.parse(data) : [];
+    if (error) {
+      throw error;
     }
   } catch (error) {
-    console.error('Error retrieving feedback data:', error);
-    return [];
+    console.error("Error saving feedback to Supabase:", error);
+    throw error; // Re-throw to be caught by the caller
   }
 };
 
-// Get feedback for a specific location
-export const getLocationFeedback = async (locationId: number): Promise<FeedbackEntry[]> => {
+// Unified function to save feedback, using Supabase if enabled
+export const saveFeedback = async (feedback: FeedbackEntry): Promise<void> => {
+  if (supabaseEnabled) {
+    try {
+      // Transform locationId to location_id for Supabase
+      await saveFeedbackToSupabase({ 
+        location_id: feedback.locationId, 
+        groupSize: feedback.groupSize, 
+        rating: feedback.rating, 
+        comment: feedback.comment, 
+        name: feedback.name,
+        timestamp: feedback.timestamp
+      });
+      return;
+    } catch (supabaseError) {
+      console.error("Failed to save to Supabase, falling back to local storage:", supabaseError);
+      // If Supabase fails, fall back to local storage
+      saveFeedbackLocally(feedback);
+    }
+  } else {
+    // If Supabase is disabled, save to local storage
+    saveFeedbackLocally(feedback);
+  }
+};
+
+// Function to get all feedback from local storage
+export const getAllFeedback = async (): Promise<FeedbackEntry[]> => {
+  let allFeedback: FeedbackEntry[] = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith('feedback_')) {
+      const feedback = localStorage.getItem(key);
+      if (feedback) {
+        try {
+          const parsedFeedback: FeedbackEntry[] = JSON.parse(feedback);
+          allFeedback = allFeedback.concat(parsedFeedback);
+        } catch (e) {
+          console.error(`Failed to parse feedback from local storage key ${key}`, e);
+        }
+      }
+    }
+  }
+  return allFeedback;
+};
+
+// Function to get feedback by location from local storage
+export const getFeedbackByLocation = async (locationId: number): Promise<FeedbackEntry[]> => {
   try {
-    if (!useLocalStorage) {
-      // Get data from Supabase
+    // Try to get from Supabase first
+    if (supabaseEnabled) {
       const { data, error } = await supabase
         .from('feedback')
         .select('*')
         .eq('location_id', locationId);
       
       if (error) throw error;
-      return data ? data.map(fromDbFormat) : [];
-    } else {
-      // Get data from localStorage
-      const allFeedback = await getFeedbackData();
-      return allFeedback.filter(entry => entry.locationId === locationId);
-    }
-  } catch (error) {
-    console.error('Error retrieving location feedback:', error);
-    return [];
-  }
-};
-
-// Clear all feedback data (for testing purposes)
-export const clearFeedbackData = async (): Promise<void> => {
-  try {
-    if (!useLocalStorage) {
-      // Clear data from Supabase (admin only)
-      const { error } = await supabase
-        .from('feedback')
-        .delete()
-        .neq('id', 0); // Delete all rows
       
-      if (error) throw error;
-    } else {
-      // Clear data from localStorage
-      localStorage.removeItem(STORAGE_KEY);
+      // Map Supabase data to our FeedbackEntry type
+      return data.map((item: any) => ({
+        locationId: item.location_id,
+        groupSize: item.group_size,
+        rating: item.rating,
+        comment: item.comment || '',
+        name: item.name || '',
+        timestamp: item.timestamp
+      }));
     }
-    console.log('All feedback data cleared');
   } catch (error) {
-    console.error('Error clearing feedback data:', error);
+    console.error('Error getting feedback from Supabase:', error);
   }
+  
+  // Fallback to localStorage
+  const feedback = await getAllFeedback();
+  return feedback.filter(entry => entry.locationId === locationId);
 };
 
-// Get statistics for all locations
+// Function to calculate average rating and total visitors
 export const getFeedbackStats = async () => {
-  const allFeedback = await getFeedbackData();
-  
-  // Group by location ID
-  const byLocation = allFeedback.reduce((acc, entry) => {
-    if (!acc[entry.locationId]) {
-      acc[entry.locationId] = [];
-    }
-    acc[entry.locationId].push(entry);
-    return acc;
-  }, {} as Record<number, FeedbackEntry[]>);
-  
-  // Calculate statistics for each location
-  const stats = Object.entries(byLocation).map(([locationId, entries]) => {
-    const totalVisitors = entries.reduce((sum, entry) => sum + entry.groupSize, 0);
-    const avgRating = entries.length 
-      ? entries.reduce((sum, entry) => sum + entry.rating, 0) / entries.length
-      : 0;
-    
-    // Group size distribution
-    const groupSizes = entries.reduce((acc, entry) => {
-      if (!acc[entry.groupSize]) {
-        acc[entry.groupSize] = 0;
+  try {
+    // Try to get from Supabase first
+    if (supabaseEnabled) {
+      const { data: statsData, error: statsError } = await supabase.rpc('get_feedback_stats');
+      
+      if (statsError) {
+        throw statsError;
       }
-      acc[entry.groupSize]++;
+      
+      return statsData;
+    }
+  } catch (error) {
+    console.error('Error getting feedback stats from Supabase:', error);
+  }
+  
+  // Fallback to localStorage
+  const allFeedback = await getAllFeedback();
+  
+  // Group feedback by locationId
+  const groupedFeedback: { [locationId: number]: FeedbackEntry[] } = allFeedback.reduce((acc: { [locationId: number]: FeedbackEntry[] }, feedback) => {
+    if (!acc[feedback.locationId]) {
+      acc[feedback.locationId] = [];
+    }
+    acc[feedback.locationId].push(feedback);
+    return acc;
+  }, {});
+  
+  // Calculate stats for each location
+  const stats = Object.entries(groupedFeedback).map(([locationId, feedbackArray]) => {
+    const totalFeedbacks = feedbackArray.length;
+    const totalRating = feedbackArray.reduce((sum, feedback) => sum + feedback.rating, 0);
+    const avgRating = totalFeedbacks > 0 ? totalRating / totalFeedbacks : 0;
+    const totalVisitors = feedbackArray.reduce((sum, feedback) => sum + feedback.groupSize, 0);
+    
+    // Calculate group size distribution
+    const groupSizeDistribution: { [groupSize: number]: number } = feedbackArray.reduce((acc: { [groupSize: number]: number }, feedback) => {
+      const groupSize = feedback.groupSize;
+      acc[groupSize] = (acc[groupSize] || 0) + 1;
       return acc;
-    }, {} as Record<number, number>);
+    }, {});
     
     return {
-      locationId: Number(locationId),
-      totalFeedbacks: entries.length,
-      totalVisitors,
+      locationId: parseInt(locationId),
+      totalFeedbacks,
       avgRating,
-      groupSizeDistribution: groupSizes
+      totalVisitors,
+      groupSizeDistribution,
     };
   });
   
   return stats;
 };
 
-// Export feedback data as CSV
-export const exportFeedbackCSV = async (): Promise<string> => {
-  const allFeedback = await getFeedbackData();
-  if (allFeedback.length === 0) return '';
-  
-  const headers = "LocationID,GroupSize,Rating,Comment,Name,Timestamp\n";
-  const rows = allFeedback.map(entry => {
-    const comment = entry.comment ? `"${entry.comment.replace(/"/g, '""')}"` : '';
-    const name = entry.name ? `"${entry.name.replace(/"/g, '""')}"` : '';
-    return `${entry.locationId},${entry.groupSize},${entry.rating},${comment},${name},${entry.timestamp}`;
-  }).join('\n');
-  
-  return headers + rows;
-};
-
-// Download CSV data
+// Function to download data as CSV
 export const downloadCSV = async () => {
-  const csvContent = await exportFeedbackCSV();
-  if (!csvContent) {
-    toast({
-      title: "Information",
-      description: "Aucune donnée à exporter.",
-    });
+  const stats = await getFeedbackStats();
+  
+  if (!stats || stats.length === 0) {
+    console.warn("No stats available to download.");
     return;
   }
   
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  // CSV header
+  const header = "Location ID,Total Feedbacks,Average Rating,Total Visitors,Group Size Distribution\n";
+  
+  // CSV rows
+  const rows = stats.map(stat => {
+    const groupSizeDistribution = Object.entries(stat.groupSizeDistribution)
+      .map(([size, count]) => `${size}:${count}`)
+      .join(';');
+    
+    return `${stat.locationId},${stat.totalFeedbacks},${stat.avgRating},${stat.totalVisitors},"${groupSizeDistribution}"`;
+  }).join('\n');
+  
+  // Combine header and rows
+  const csvContent = header + rows;
+  
+  // Create a download link
+  const blob = new Blob([csvContent], { type: 'text/csv' });
   const url = URL.createObjectURL(blob);
+  
+  // Create a link element and trigger the download
   const link = document.createElement('a');
-  
-  link.setAttribute('href', url);
-  link.setAttribute('download', `artpath_feedback_${new Date().toISOString().split('T')[0]}.csv`);
-  link.style.visibility = 'hidden';
-  
+  link.href = url;
+  link.download = 'feedback_stats.csv';
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
   
-  toast({
-    title: "Téléchargement réussi",
-    description: "Les données ont été exportées au format CSV.",
-  });
+  // Revoke the URL
+  URL.revokeObjectURL(url);
 };
