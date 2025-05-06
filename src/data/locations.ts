@@ -1,5 +1,6 @@
 
 import { artworks } from './artworks';
+import { supabase } from '@/lib/supabase';
 
 export interface Location {
   id: number;
@@ -10,7 +11,8 @@ export interface Location {
   image: string;
 }
 
-export const locations: Location[] = [
+// Fallback locations data in case Supabase is unavailable
+export const fallbackLocations: Location[] = [
   {
     id: 1,
     name: "Jardin de la tour Risler",
@@ -77,17 +79,106 @@ export const locations: Location[] = [
   }
 ];
 
+// Variable to store fetched locations
+let fetchedLocations: Location[] | null = null;
+
+// Fetch locations from Supabase
+export const fetchLocations = async (): Promise<Location[]> => {
+  try {
+    // If we already fetched the locations, return them
+    if (fetchedLocations !== null) {
+      return fetchedLocations;
+    }
+
+    // Try to fetch locations from Supabase
+    const { data: locationsData, error: locationsError } = await supabase
+      .from('locations')
+      .select('*');
+
+    if (locationsError) {
+      console.error('Error fetching locations:', locationsError);
+      return fallbackLocations;
+    }
+
+    // Try to fetch location-artists relationships
+    const { data: locationArtistsData, error: relationshipError } = await supabase
+      .from('location_artists')
+      .select(`
+        location_id,
+        artists:artist_id(name)
+      `);
+
+    if (relationshipError) {
+      console.error('Error fetching location-artist relationships:', relationshipError);
+      return fallbackLocations;
+    }
+
+    // Group artists by location
+    const artistsByLocation: Record<number, string[]> = {};
+    locationArtistsData.forEach((item: any) => {
+      if (!artistsByLocation[item.location_id]) {
+        artistsByLocation[item.location_id] = [];
+      }
+      artistsByLocation[item.location_id].push(item.artists.name);
+    });
+
+    // Map the data to our Location interface format
+    const locations: Location[] = locationsData.map((location: any) => ({
+      id: location.id,
+      name: location.name,
+      slug: location.slug,
+      description: location.description,
+      artists: artistsByLocation[location.id] || [],
+      image: location.image
+    }));
+
+    // Cache fetched locations
+    fetchedLocations = locations;
+    return locations;
+  } catch (error) {
+    console.error('Error in fetchLocations:', error);
+    return fallbackLocations;
+  }
+};
+
+// Export the locations getter function that tries Supabase first, then fallback
+export const getLocations = async (): Promise<Location[]> => {
+  try {
+    const locations = await fetchLocations();
+    return locations;
+  } catch (error) {
+    console.error('Error getting locations:', error);
+    return fallbackLocations;
+  }
+};
+
+// Export synchronous access to locations (may return cached or fallback)
+export const locations = fetchedLocations || fallbackLocations;
+
 // Helper function to get artworks by artist name
 export const getArtworksByArtist = (artistName: string) => {
   return artworks.filter(artwork => artwork.artist === artistName);
 };
 
 // Helper function to get artworks by location
-export const getArtworksByLocation = (locationId: number) => {
-  const location = locations.find(loc => loc.id === locationId);
-  if (!location) return [];
-  
-  return artworks.filter(artwork => 
-    location.artists.includes(artwork.artist)
-  );
+export const getArtworksByLocation = async (locationId: number) => {
+  try {
+    const locations = await getLocations();
+    const location = locations.find(loc => loc.id === locationId);
+    if (!location) return [];
+    
+    return artworks.filter(artwork => 
+      location.artists.includes(artwork.artist)
+    );
+  } catch (error) {
+    console.error('Error getting artworks by location:', error);
+    
+    // Fallback to static data
+    const location = fallbackLocations.find(loc => loc.id === locationId);
+    if (!location) return [];
+    
+    return artworks.filter(artwork => 
+      location.artists.includes(artwork.artist)
+    );
+  }
 };

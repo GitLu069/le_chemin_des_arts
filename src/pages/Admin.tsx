@@ -1,14 +1,11 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import Layout from '@/components/Layout';
-import { locations } from '@/data/locations';
+import { supabase } from '@/lib/supabase';
+import { getLocations } from '@/data/locations';
 import { getFeedbackStats, downloadCSV } from '@/utils/storage';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-
-// Define a secure token to protect admin page
-const ADMIN_TOKEN = "artpath2025";
 
 const Admin = () => {
   const [searchParams] = useSearchParams();
@@ -17,73 +14,108 @@ const Admin = () => {
   
   const [stats, setStats] = useState<any[]>([]);
   const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
+  const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [selectedLocation, setSelectedLocation] = useState<number | null>(null);
+  const [locationsData, setLocationsData] = useState<any[]>([]);
   
-  // Check token in URL or localStorage
+  // Check if user is already authenticated
   useEffect(() => {
-    const token = searchParams.get('token');
-    const storedToken = localStorage.getItem('admin_token');
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      
+      if (data.session) {
+        setIsAuthorized(true);
+        loadData();
+      } else {
+        setIsAuthorized(false);
+      }
+      setIsLoading(false);
+    };
     
-    if ((token && token === ADMIN_TOKEN) || storedToken === ADMIN_TOKEN) {
-      setIsAuthorized(true);
-      localStorage.setItem('admin_token', ADMIN_TOKEN);
-    }
-  }, [searchParams]);
+    checkSession();
+  }, []);
   
-  // Load stats if authorized
-  useEffect(() => {
-    if (isAuthorized) {
-      loadStats();
-    }
-  }, [isAuthorized]);
-  
-  const loadStats = () => {
-    const rawStats = getFeedbackStats();
-    
-    // Merge location info with stats
-    const statsWithInfo = rawStats.map(stat => {
-      const location = locations.find(l => l.id === stat.locationId);
-      return {
-        ...stat,
-        title: location ? location.name : `Lieu ${stat.locationId}`,
-        description: location ? location.description : 'Description non disponible'
-      };
-    });
-    
-    setStats(statsWithInfo);
-    
-    if (statsWithInfo.length === 0) {
-      toast({
-        title: "Information",
-        description: "Aucune donnée n'est disponible pour le moment."
+  // Load all data if authorized
+  const loadData = async () => {
+    try {
+      // Load locations
+      const locations = await getLocations();
+      setLocationsData(locations);
+      
+      // Load stats
+      const statsData = await getFeedbackStats();
+      
+      // Merge location info with stats
+      const statsWithInfo = statsData.map(stat => {
+        const location = locations.find(l => l.id === stat.locationId);
+        return {
+          ...stat,
+          title: location ? location.name : `Lieu ${stat.locationId}`,
+          description: location ? location.description : 'Description non disponible'
+        };
       });
-    }
-  };
-  
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (password === ADMIN_TOKEN) {
-      setIsAuthorized(true);
-      localStorage.setItem('admin_token', ADMIN_TOKEN);
+      
+      setStats(statsWithInfo);
+      
+      if (statsWithInfo.length === 0) {
+        toast({
+          title: "Information",
+          description: "Aucune donnée n'est disponible pour le moment."
+        });
+      }
+    } catch (error) {
+      console.error("Error loading data:", error);
       toast({
-        title: "Accès autorisé",
-        description: "Bienvenue dans l'interface d'administration."
-      });
-    } else {
-      toast({
-        title: "Accès refusé",
-        description: "Le mot de passe est incorrect.",
+        title: "Erreur",
+        description: "Impossible de charger les données.",
         variant: "destructive"
       });
     }
   };
   
-  const handleLogout = () => {
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      
+      if (error) throw error;
+      
+      setIsAuthorized(true);
+      toast({
+        title: "Accès autorisé",
+        description: "Bienvenue dans l'interface d'administration."
+      });
+      
+      // Load data after successful login
+      loadData();
+    } catch (error: any) {
+      console.error("Login error:", error);
+      toast({
+        title: "Accès refusé",
+        description: error.message || "Identifiants incorrects.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     setIsAuthorized(false);
-    localStorage.removeItem('admin_token');
     navigate('/');
+    
+    toast({
+      title: "Déconnexion réussie",
+      description: "Vous avez été déconnecté avec succès."
+    });
   };
   
   const getChartData = () => {
@@ -104,6 +136,16 @@ const Admin = () => {
     }));
   };
   
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="container-custom py-12 text-center">
+          <p>Chargement en cours...</p>
+        </div>
+      </Layout>
+    );
+  }
+  
   if (!isAuthorized) {
     return (
       <Layout>
@@ -112,6 +154,21 @@ const Admin = () => {
             <h1 className="mb-6 text-center">Administration</h1>
             
             <form onSubmit={handleLogin} className="space-y-6">
+              <div>
+                <label htmlFor="email" className="block mb-2 font-medium">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-blue-400 outline-none"
+                  placeholder="Entrez votre email"
+                />
+              </div>
+              
               <div>
                 <label htmlFor="password" className="block mb-2 font-medium">
                   Mot de passe
@@ -123,13 +180,17 @@ const Admin = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-blue-400 outline-none"
-                  placeholder="Entrez le mot de passe administrateur"
+                  placeholder="Entrez votre mot de passe"
                 />
               </div>
               
               <div className="flex justify-center">
-                <button type="submit" className="btn-primary">
-                  Se connecter
+                <button 
+                  type="submit" 
+                  className="btn-primary"
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Connexion...' : 'Se connecter'}
                 </button>
               </div>
             </form>

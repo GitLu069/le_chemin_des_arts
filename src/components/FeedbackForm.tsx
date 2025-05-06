@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -44,11 +43,12 @@ const FeedbackForm: React.FC<FeedbackFormProps> = ({ locationId }) => {
     },
   });
 
-  const onSubmit = (data: FeedbackFormValues) => {
+  const onSubmit = async (data: FeedbackFormValues) => {
     setIsSubmitting(true);
     
     try {
-      saveFeedback({
+      // Now using the async version of saveFeedback
+      await saveFeedback({
         locationId: locationId,
         groupSize: Number(data.groupSize),
         rating: data.rating,
