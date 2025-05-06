@@ -2,27 +2,36 @@
 import React from 'react';
 
 interface StarRatingProps {
-  value: number;
-  onChange: (rating: number) => void;
+  value?: number;
+  rating?: number;
+  onChange?: (rating: number) => void;
+  onRatingChange?: (rating: number) => void;
 }
 
-const StarRating: React.FC<StarRatingProps> = ({ value, onChange }) => {
+const StarRating: React.FC<StarRatingProps> = ({ value, rating, onChange, onRatingChange }) => {
+  // Use the appropriate prop based on what's passed
+  const currentRating = rating || value || 0;
+  const handleRatingChange = (star: number) => {
+    if (onChange) onChange(star);
+    if (onRatingChange) onRatingChange(star);
+  };
+
   return (
     <div className="flex items-center gap-1">
       {[1, 2, 3, 4, 5].map((star) => (
         <button
           key={star}
           type="button"
-          onClick={() => onChange(star)}
+          onClick={() => handleRatingChange(star)}
           className="focus:outline-none"
           aria-label={`${star} étoile${star > 1 ? 's' : ''}`}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-8 w-8"
-            fill={star <= value ? '#FFC107' : 'none'}
+            fill={star <= currentRating ? '#FFC107' : 'none'}
             viewBox="0 0 24 24"
-            stroke={star <= value ? '#FFC107' : '#D1D5DB'}
+            stroke={star <= currentRating ? '#FFC107' : '#D1D5DB'}
             strokeWidth={2}
           >
             <path

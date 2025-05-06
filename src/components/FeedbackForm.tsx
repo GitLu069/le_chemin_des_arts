@@ -54,6 +54,7 @@ const FeedbackForm: React.FC<FeedbackFormProps> = ({ locationId }) => {
         rating: data.rating,
         comment: data.comment || '',
         timestamp: new Date().toISOString(),
+        name: data.name
       });
       
       toast({
@@ -107,8 +108,8 @@ const FeedbackForm: React.FC<FeedbackFormProps> = ({ locationId }) => {
               <FormControl>
                 <div className="flex items-center">
                   <StarRating 
-                    rating={field.value} 
-                    onRatingChange={(newRating) => field.onChange(newRating)} 
+                    value={field.value} 
+                    onChange={(newRating) => field.onChange(newRating)} 
                   />
                 </div>
               </FormControl>

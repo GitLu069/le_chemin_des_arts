@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import Layout from '@/components/Layout';
-import { artworks } from '@/data/artworks';
+import { locations } from '@/data/locations';
 import { getFeedbackStats, downloadCSV } from '@/utils/storage';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
@@ -18,7 +18,7 @@ const Admin = () => {
   const [stats, setStats] = useState<any[]>([]);
   const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
   const [password, setPassword] = useState<string>("");
-  const [selectedArtwork, setSelectedArtwork] = useState<number | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<number | null>(null);
   
   // Check token in URL or localStorage
   useEffect(() => {
@@ -41,13 +41,13 @@ const Admin = () => {
   const loadStats = () => {
     const rawStats = getFeedbackStats();
     
-    // Merge artwork info with stats
+    // Merge location info with stats
     const statsWithInfo = rawStats.map(stat => {
-      const artwork = artworks.find(a => a.id === stat.artworkId);
+      const location = locations.find(l => l.id === stat.locationId);
       return {
         ...stat,
-        title: artwork ? artwork.title : `Œuvre ${stat.artworkId}`,
-        artist: artwork ? artwork.artist : 'Inconnu'
+        title: location ? location.name : `Lieu ${stat.locationId}`,
+        description: location ? location.description : 'Description non disponible'
       };
     });
     
@@ -94,11 +94,11 @@ const Admin = () => {
     }));
   };
   
-  const getGroupSizeData = (artworkId: number) => {
-    const artwork = stats.find(s => s.artworkId === artworkId);
-    if (!artwork) return [];
+  const getGroupSizeData = (locationId: number) => {
+    const location = stats.find(s => s.locationId === locationId);
+    if (!location) return [];
     
-    return Object.entries(artwork.groupSizeDistribution).map(([size, count]) => ({
+    return Object.entries(location.groupSizeDistribution).map(([size, count]) => ({
       name: `${size} personne${Number(size) > 1 ? 's' : ''}`,
       valeur: count
     }));
@@ -188,12 +188,12 @@ const Admin = () => {
               </div>
             </div>
             
-            <h2 className="mb-4">Détails par œuvre</h2>
+            <h2 className="mb-4">Détails par lieu</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               {stats.map((stat) => (
-                <div key={stat.artworkId} className="card hover:shadow-md transition-shadow cursor-pointer" onClick={() => setSelectedArtwork(stat.artworkId)}>
+                <div key={stat.locationId} className="card hover:shadow-md transition-shadow cursor-pointer" onClick={() => setSelectedLocation(stat.locationId)}>
                   <h3 className="text-lg font-medium mb-1">{stat.title}</h3>
-                  <p className="text-gray-600 mb-3">par {stat.artist}</p>
+                  <p className="text-gray-600 mb-3">{stat.description.substring(0, 100)}{stat.description.length > 100 ? '...' : ''}</p>
                   
                   <div className="grid grid-cols-2 gap-3 mb-4">
                     <div className="bg-blue-50 p-3 rounded-lg">
@@ -216,14 +216,14 @@ const Admin = () => {
               ))}
             </div>
             
-            {selectedArtwork && (
+            {selectedLocation && (
               <div className="card mb-8">
                 <div className="flex justify-between items-center mb-4">
                   <h2>
-                    Détails - {stats.find(s => s.artworkId === selectedArtwork)?.title}
+                    Détails - {stats.find(s => s.locationId === selectedLocation)?.title}
                   </h2>
                   <button 
-                    onClick={() => setSelectedArtwork(null)}
+                    onClick={() => setSelectedLocation(null)}
                     className="text-sm text-gray-500 hover:text-gray-700"
                   >
                     Fermer
@@ -234,7 +234,7 @@ const Admin = () => {
                 <div className="h-80 w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart
-                      data={getGroupSizeData(selectedArtwork)}
+                      data={getGroupSizeData(selectedLocation)}
                       margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                     >
                       <XAxis dataKey="name" />

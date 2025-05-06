@@ -54,7 +54,7 @@ const Artwork = () => {
     setIsSubmitting(true);
     
     const feedback = {
-      artworkId: artwork.id,
+      locationId: artwork.id, // Changed from artworkId to locationId
       groupSize,
       rating,
       comment,
