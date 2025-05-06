@@ -1,7 +1,7 @@
 
 import React from 'react';
 
-interface StarRatingProps {
+export interface StarRatingProps {
   value?: number;
   rating?: number;
   onChange?: (rating: number) => void;
@@ -10,7 +10,7 @@ interface StarRatingProps {
 
 const StarRating: React.FC<StarRatingProps> = ({ value, rating, onChange, onRatingChange }) => {
   // Use the appropriate prop based on what's passed
-  const currentRating = rating || value || 0;
+  const currentRating = rating !== undefined ? rating : (value !== undefined ? value : 0);
   const handleRatingChange = (star: number) => {
     if (onChange) onChange(star);
     if (onRatingChange) onRatingChange(star);

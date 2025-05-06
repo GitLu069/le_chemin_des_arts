@@ -1,9 +1,8 @@
 
 import React from 'react';
 import Layout from '@/components/Layout';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { MapPin, Clock, Phone, Mail, Calendar } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { MapPin, Clock, Mail, Calendar } from 'lucide-react';
 
 const Infos = () => {
   return (
@@ -12,7 +11,7 @@ const Infos = () => {
         <div className="max-w-3xl mx-auto">
           <h1 className="text-center mb-4 text-artPath-text">Infos pratiques</h1>
           <p className="text-center text-gray-600 mb-8">
-            Tout ce que vous devez savoir pour profiter pleinement du Chemin des Arts
+            Tout ce que vous devez savoir pour profiter pleinement des chemins d'art
           </p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">

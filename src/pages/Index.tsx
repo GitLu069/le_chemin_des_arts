@@ -12,7 +12,7 @@ const Index = () => {
         <div 
           className="absolute inset-0 bg-cover bg-center" 
           style={{
-            backgroundImage: "url('https://images.unsplash.com/photo-1518723276788-13ecb9e00076?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1920&q=80')",
+            backgroundImage: "url('/lovable-uploads/4187597f-6ee7-46d0-a0a8-5326f6393e43.png')",
             filter: "brightness(0.9)"
           }}
         />
@@ -22,7 +22,7 @@ const Index = () => {
           <div className="flex items-center gap-2 mb-3">
             <Leaf className="h-6 w-6 text-artPath-cream" />
             <h1 className="text-4xl md:text-5xl font-bold text-shadow">
-              Le Chemin des Arts – 2025
+              les chemins d'art – 2025
             </h1>
           </div>
           <p className="text-xl md:text-2xl max-w-2xl text-shadow">
@@ -51,7 +51,7 @@ const Index = () => {
             <h2 className="mb-6 text-artPath-text">À propos de l'événement</h2>
             <div className="card">
               <p className="mb-4">
-                Le Chemin des Arts est une initiative culturelle visant à promouvoir l'art local et 
+                les chemins d'art est une initiative culturelle visant à promouvoir l'art local et 
                 à créer un musée à ciel ouvert accessible à tous. Les œuvres exposées représentent 
                 la diversité artistique de notre région et invitent à la réflexion et au dialogue.
               </p>

@@ -29,9 +29,15 @@ const Explore = () => {
                 </h3>
               </div>
               
+              <div className="h-48 overflow-hidden">
+                <img 
+                  src={location.image} 
+                  alt={location.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              
               <div className="p-5 flex-grow">
-                <p className="text-gray-600 mb-4">{location.description}</p>
-                
                 <div className="mb-4">
                   <h4 className="text-lg font-medium mb-2 flex items-center gap-2">
                     <TreeDeciduous className="h-4 w-4 text-artPath-accent" />
@@ -53,12 +59,12 @@ const Explore = () => {
               </div>
               
               <div className="p-5 bg-artPath-cream/30 border-t border-artPath-cream flex justify-center items-center">
-                <div className="flex-shrink-0 mr-6">
+                <div className="flex-shrink-0 self-center">
                   <QRCodeGenerator url={`/location/${location.slug}`} size={100} />
                 </div>
                 <Link 
                   to={`/location/${location.slug}`} 
-                  className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-artPath-accent text-white hover:bg-green-700 transition-colors"
+                  className="inline-flex items-center justify-center ml-auto px-4 py-2 rounded-lg bg-artPath-accent text-white hover:bg-green-700 transition-colors"
                 >
                   Découvrir ce lieu
                 </Link>

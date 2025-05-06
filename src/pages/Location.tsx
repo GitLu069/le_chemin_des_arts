@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { locations } from '@/data/locations';
@@ -45,7 +45,13 @@ const Location = () => {
               <h1 className="text-artPath-text">{location.name}</h1>
             </div>
             
-            <p className="text-gray-600 mb-6">{location.description}</p>
+            <div className="mb-6">
+              <img 
+                src={location.image} 
+                alt={location.name}
+                className="w-full h-64 object-cover rounded-lg mb-4"
+              />
+            </div>
             
             {location.artists.length > 0 ? (
               <div className="p-4 bg-artPath-cream/30 rounded-lg">

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Leaf } from 'lucide-react';
-import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuLink, NavigationMenuTrigger, NavigationMenuContent } from '@/components/ui/navigation-menu';
+import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuTrigger, NavigationMenuContent } from '@/components/ui/navigation-menu';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -24,7 +24,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className="container-custom flex justify-between items-center">
           <Link to="/" className="text-artPath-text font-display font-bold text-xl flex items-center">
             <Leaf className="h-5 w-5 text-artPath-accent mr-2" />
-            Le Chemin des Arts
+            les chemins d'art
           </Link>
           
           {/* Desktop Navigation */}
@@ -104,7 +104,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <footer className="py-6 px-4 bg-white border-t border-gray-100 text-sm text-gray-500">
         <div className="container-custom text-center">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p>© 2025 Le Chemin des Arts - Poleymieux-au-Mont-d'Or</p>
+            <p>© 2025 les chemins d'art - Poleymieux-au-Mont-d'Or</p>
             <div className="flex gap-4">
               <Link to="/legal" className="hover:underline">Mentions légales</Link>
               <Link to="/admin" className="hover:underline text-gray-400">Administration</Link>

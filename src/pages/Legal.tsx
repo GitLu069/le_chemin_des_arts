@@ -11,47 +11,44 @@ const Legal = () => {
           <h1 className="mb-8 text-center">Mentions légales</h1>
           
           <div className="card mb-8">
-            <h2 className="text-xl mb-4">Informations générales</h2>
-            <p className="mb-4">
-              Le présent site "Le Chemin des Arts" est édité par l'Association Culturelle [Nom de l'Association],
-              association loi 1901, dont le siège social est situé à [Adresse], représentée par son Président
-              [Nom du Président].
-            </p>
-            <p className="mb-4">
-              Contact : chemindelarts@example.com<br />
-              Téléphone : 01 23 45 67 89
-            </p>
-            
-            <h2 className="text-xl mb-4 mt-6">Protection des données personnelles</h2>
-            <p className="mb-4">
-              Conformément au Règlement Général sur la Protection des Données (RGPD), nous vous informons que les
-              données collectées via les formulaires de ce site sont destinées uniquement à améliorer l'expérience
-              utilisateur et l'organisation de l'événement artistique.
-            </p>
-            <p className="mb-4">
-              Les données collectées sont :
-            </p>
-            <ul className="list-disc pl-6 mb-4">
-              <li>Le nombre de personnes dans votre groupe</li>
-              <li>Votre appréciation des œuvres (notes et commentaires)</li>
-            </ul>
-            <p className="mb-4">
-              Ces données sont anonymes et ne permettent pas de vous identifier personnellement.
-              Vous disposez d'un droit d'accès, de rectification et d'opposition aux données vous concernant
-              que vous pouvez exercer en écrivant à chemindelarts@example.com.
-            </p>
-            
-            <h2 className="text-xl mb-4 mt-6">Cookies</h2>
-            <p className="mb-4">
-              Ce site utilise des cookies techniques essentiels au fonctionnement du site.
-              Aucun cookie publicitaire ou de tracking n'est utilisé.
-            </p>
-            
-            <h2 className="text-xl mb-4 mt-6">Crédits</h2>
-            <p className="mb-4">
-              Ce site a été développé dans le cadre d'une initiative culturelle locale.
-              Les images utilisées proviennent de la plateforme Unsplash et sont libres de droits.
-            </p>
+            <div className="space-y-4">
+              <p>
+                <span className="font-semibold">Événement :</span> les chemins d'art
+              </p>
+              <p>
+                <span className="font-semibold">Organisé par :</span> Comité des fêtes de Poleymieux-au-Mont-d'Or
+              </p>
+              <p>
+                <span className="font-semibold">Présidente :</span> Evelyne Riou – conseillère adjointe à la mairie
+              </p>
+              <p>
+                <span className="font-semibold">Contact :</span>{" "}
+                <a href="mailto:lescheminsdart.poleymieux@gmail.com" className="text-artPath-accent hover:underline">
+                  lescheminsdart.poleymieux@gmail.com
+                </a>
+              </p>
+              <p>
+                <span className="font-semibold">Téléphone :</span> 04 78 91 90 09
+              </p>
+              <p>
+                <span className="font-semibold">Site de la mairie :</span>{" "}
+                <a href="http://www.poleymieux.fr" target="_blank" rel="noopener noreferrer" className="text-artPath-accent hover:underline">
+                  www.poleymieux.fr
+                </a>
+              </p>
+              
+              <div className="pt-4 mt-4 border-t border-gray-200">
+                <p>
+                  <span className="font-semibold">Créateur du site :</span> Lucas VINCENT, habitant de Poleymieux
+                </p>
+                <p>
+                  <span className="font-semibold">Contact :</span>{" "}
+                  <a href="mailto:lucasvincent69250@gmail.com" className="text-artPath-accent hover:underline">
+                    lucasvincent69250@gmail.com
+                  </a>
+                </p>
+              </div>
+            </div>
             
             <div className="text-center mt-8">
               <Link to="/" className="btn-secondary">
