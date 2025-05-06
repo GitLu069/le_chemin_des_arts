@@ -1,8 +1,14 @@
-
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Leaf } from 'lucide-react';
-import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuTrigger, NavigationMenuContent } from '@/components/ui/navigation-menu';
+import { 
+  NavigationMenu, 
+  NavigationMenuList, 
+  NavigationMenuItem, 
+  NavigationMenuTrigger, 
+  NavigationMenuContent,
+  NavigationMenuLink
+} from '@/components/ui/navigation-menu';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -42,25 +48,19 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       <NavigationMenuContent>
                         <ul className="grid w-[200px] gap-1 p-2">
                           <li className="p-1">
-                            <NavigationMenuLink asChild>
-                              <Link to="/concours" className="block p-2 hover:bg-gray-50 rounded-md">
-                                Concours Photo
-                              </Link>
-                            </NavigationMenuLink>
+                            <Link to="/concours" className="block p-2 hover:bg-gray-50 rounded-md">
+                              Concours Photo
+                            </Link>
                           </li>
                           <li className="p-1">
-                            <NavigationMenuLink asChild>
-                              <Link to="/infos" className="block p-2 hover:bg-gray-50 rounded-md">
-                                Infos pratiques
-                              </Link>
-                            </NavigationMenuLink>
+                            <Link to="/infos" className="block p-2 hover:bg-gray-50 rounded-md">
+                              Infos pratiques
+                            </Link>
                           </li>
                           <li className="p-1">
-                            <NavigationMenuLink asChild>
-                              <Link to="/about" className="block p-2 hover:bg-gray-50 rounded-md">
-                                À propos
-                              </Link>
-                            </NavigationMenuLink>
+                            <Link to="/about" className="block p-2 hover:bg-gray-50 rounded-md">
+                              À propos
+                            </Link>
                           </li>
                         </ul>
                       </NavigationMenuContent>
