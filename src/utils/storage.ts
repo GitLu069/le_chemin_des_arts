@@ -1,5 +1,5 @@
 
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 
 // Type definition for feedback entries
 export type FeedbackEntry = {
@@ -47,7 +47,7 @@ export const saveFeedback = async (feedback: FeedbackEntry): Promise<void> => {
       // Transform locationId to location_id for Supabase
       await saveFeedbackToSupabase({ 
         location_id: feedback.locationId, 
-        group_size: feedback.groupSize, 
+        groupSize: feedback.groupSize, 
         rating: feedback.rating, 
         comment: feedback.comment, 
         name: feedback.name,
