@@ -1,3 +1,4 @@
+
 import { supabase } from '@/lib/supabase';
 
 // Type definition for feedback entries
@@ -11,7 +12,8 @@ export type FeedbackEntry = {
 };
 
 // Flag to enable/disable Supabase usage
-const supabaseEnabled = process.env.NEXT_PUBLIC_SUPABASE_ENABLED === 'true';
+// Using import.meta.env instead of process.env for Vite compatibility
+const supabaseEnabled = import.meta.env.VITE_SUPABASE_ENABLED === 'true';
 
 // Function to save feedback to local storage
 export const saveFeedbackLocally = (feedback: FeedbackEntry): void => {
@@ -45,7 +47,7 @@ export const saveFeedback = async (feedback: FeedbackEntry): Promise<void> => {
       // Transform locationId to location_id for Supabase
       await saveFeedbackToSupabase({ 
         location_id: feedback.locationId, 
-        groupSize: feedback.groupSize, 
+        group_size: feedback.groupSize, 
         rating: feedback.rating, 
         comment: feedback.comment, 
         name: feedback.name,

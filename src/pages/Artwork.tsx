@@ -20,6 +20,7 @@ const Artwork = () => {
   const [groupSize, setGroupSize] = useState<number>(1);
   const [rating, setRating] = useState<number>(0);
   const [comment, setComment] = useState<string>("");
+  const [name, setName] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   
   if (!artwork) {
@@ -54,10 +55,11 @@ const Artwork = () => {
     setIsSubmitting(true);
     
     const feedback = {
-      locationId: artwork.id, // Changed from artworkId to locationId
+      locationId: artwork.id,
       groupSize,
       rating,
       comment,
+      name,
       timestamp: new Date().toISOString()
     };
     
@@ -184,6 +186,20 @@ const Artwork = () => {
                   onChange={(e) => setComment(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-blue-400 outline-none"
                   placeholder="Partagez vos impressions..."
+                />
+              </div>
+              
+              <div>
+                <label htmlFor="name" className="block mb-2 font-medium">
+                  Nom (facultatif)
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-blue-400 outline-none"
+                  placeholder="Votre nom"
                 />
               </div>
               
