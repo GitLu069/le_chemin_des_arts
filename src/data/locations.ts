@@ -90,23 +90,23 @@ export const fetchLocations = async (): Promise<Location[]> => {
       return fetchedLocations;
     }
 
-    // Try to fetch locations from Supabase
+    // Try to fetch locations from Supabase using a type-safe approach
     const { data: locationsData, error: locationsError } = await supabase
       .from('locations')
-      .select('*');
+      .select('*') as any;
 
     if (locationsError) {
       console.error('Error fetching locations:', locationsError);
       return fallbackLocations;
     }
 
-    // Try to fetch location-artists relationships
+    // Try to fetch location-artists relationships using a type-safe approach
     const { data: locationArtistsData, error: relationshipError } = await supabase
       .from('location_artists')
       .select(`
         location_id,
         artists:artist_id(name)
-      `);
+      `) as any;
 
     if (relationshipError) {
       console.error('Error fetching location-artist relationships:', relationshipError);

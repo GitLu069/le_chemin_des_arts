@@ -1,12 +1,42 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '@/components/Layout';
-import { locations } from '@/data/locations';
+import { getLocations, Location } from '@/data/locations';
 import QRCodeGenerator from '@/components/QRCodeGenerator';
 import { MapPin, TreeDeciduous } from 'lucide-react';
 
 const Explore = () => {
+  const [locations, setLocations] = useState<Location[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const fetchLocationsData = async () => {
+      try {
+        const data = await getLocations();
+        setLocations(data);
+      } catch (error) {
+        console.error('Error fetching locations:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchLocationsData();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="container-custom py-8">
+          <div className="text-center">
+            <p>Chargement des lieux...</p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
       <div className="container-custom py-8 animate-fade-in">

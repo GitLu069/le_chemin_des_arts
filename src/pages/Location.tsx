@@ -1,16 +1,51 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Layout from '@/components/Layout';
-import { locations } from '@/data/locations';
+import { getLocations, Location as LocationType } from '@/data/locations';
 import { MapPin, ArrowRight } from 'lucide-react';
 import FeedbackForm from '@/components/FeedbackForm';
 
 const Location = () => {
   const { slug } = useParams<{ slug: string }>();
-  const location = locations.find(loc => loc.slug === slug);
+  const [location, setLocation] = useState<LocationType | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [notFound, setNotFound] = useState<boolean>(false);
   
-  if (!location) {
+  useEffect(() => {
+    const fetchLocation = async () => {
+      try {
+        const locations = await getLocations();
+        const foundLocation = locations.find(loc => loc.slug === slug);
+        if (foundLocation) {
+          setLocation(foundLocation);
+        } else {
+          setNotFound(true);
+        }
+      } catch (error) {
+        console.error('Error fetching location:', error);
+        setNotFound(true);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchLocation();
+  }, [slug]);
+  
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="container-custom py-12">
+          <div className="text-center">
+            <p>Chargement du lieu...</p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+  
+  if (notFound || !location) {
     return (
       <Layout>
         <div className="container-custom py-12">
