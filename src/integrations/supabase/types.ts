@@ -9,13 +9,51 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      feedback: {
+        Row: {
+          comment: string | null
+          group_size: number
+          id: number
+          location_id: number
+          name: string | null
+          rating: number
+          timestamp: string
+        }
+        Insert: {
+          comment?: string | null
+          group_size: number
+          id?: number
+          location_id: number
+          name?: string | null
+          rating: number
+          timestamp?: string
+        }
+        Update: {
+          comment?: string | null
+          group_size?: number
+          id?: number
+          location_id?: number
+          name?: string | null
+          rating?: number
+          timestamp?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_feedback_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          location_id: number
+          total_feedbacks: number
+          avg_rating: number
+          total_visitors: number
+          group_size_distribution: Json
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

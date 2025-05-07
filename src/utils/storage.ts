@@ -11,6 +11,16 @@ export type FeedbackEntry = {
   timestamp: string;
 };
 
+// Type for Supabase feedback table format
+type SupabaseFeedback = {
+  location_id: number;
+  group_size: number;
+  rating: number;
+  comment: string;
+  name: string;
+  timestamp: string;
+};
+
 // Flag to enable/disable Supabase usage
 // Using import.meta.env instead of process.env for Vite compatibility
 const supabaseEnabled = import.meta.env.VITE_SUPABASE_ENABLED === 'true';
@@ -25,7 +35,7 @@ export const saveFeedbackLocally = (feedback: FeedbackEntry): void => {
 };
 
 // Async function to save feedback to Supabase
-export const saveFeedbackToSupabase = async (feedback: Omit<FeedbackEntry, 'locationId'> & { location_id: number }): Promise<void> => {
+export const saveFeedbackToSupabase = async (feedback: SupabaseFeedback): Promise<void> => {
   try {
     const { data, error } = await supabase
       .from('feedback')
@@ -44,10 +54,10 @@ export const saveFeedbackToSupabase = async (feedback: Omit<FeedbackEntry, 'loca
 export const saveFeedback = async (feedback: FeedbackEntry): Promise<void> => {
   if (supabaseEnabled) {
     try {
-      // Transform locationId to location_id for Supabase
+      // Transform FeedbackEntry to SupabaseFeedback format
       await saveFeedbackToSupabase({ 
         location_id: feedback.locationId, 
-        groupSize: feedback.groupSize, 
+        group_size: feedback.groupSize, 
         rating: feedback.rating, 
         comment: feedback.comment, 
         name: feedback.name,
