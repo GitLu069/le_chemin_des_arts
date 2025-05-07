@@ -11,19 +11,9 @@ export type FeedbackEntry = {
   timestamp: string;
 };
 
-// Type for Supabase feedback table format
-type SupabaseFeedback = {
-  location_id: number;
-  group_size: number;
-  rating: number;
-  comment: string;
-  name: string;
-  timestamp: string;
-};
-
 // Flag to enable/disable Supabase usage
 // Using import.meta.env instead of process.env for Vite compatibility
-const supabaseEnabled = import.meta.env.VITE_SUPABASE_ENABLED === 'true';
+const supabaseEnabled = true; // Always enable Supabase now that it's properly configured
 
 // Function to save feedback to local storage
 export const saveFeedbackLocally = (feedback: FeedbackEntry): void => {
@@ -35,9 +25,16 @@ export const saveFeedbackLocally = (feedback: FeedbackEntry): void => {
 };
 
 // Async function to save feedback to Supabase
-export const saveFeedbackToSupabase = async (feedback: SupabaseFeedback): Promise<void> => {
+export const saveFeedbackToSupabase = async (feedback: {
+  location_id: number;
+  group_size: number;
+  rating: number;
+  comment: string;
+  name: string;
+  timestamp: string;
+}): Promise<void> => {
   try {
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('feedback')
       .insert([feedback]);
     
@@ -54,7 +51,7 @@ export const saveFeedbackToSupabase = async (feedback: SupabaseFeedback): Promis
 export const saveFeedback = async (feedback: FeedbackEntry): Promise<void> => {
   if (supabaseEnabled) {
     try {
-      // Transform FeedbackEntry to SupabaseFeedback format
+      // Transform FeedbackEntry to Supabase format
       await saveFeedbackToSupabase({ 
         location_id: feedback.locationId, 
         group_size: feedback.groupSize, 
@@ -95,10 +92,10 @@ export const getAllFeedback = async (): Promise<FeedbackEntry[]> => {
   return allFeedback;
 };
 
-// Function to get feedback by location from local storage
+// Function to get feedback by location
 export const getFeedbackByLocation = async (locationId: number): Promise<FeedbackEntry[]> => {
   try {
-    // Try to get from Supabase first
+    // Try to get from Supabase first if enabled
     if (supabaseEnabled) {
       const { data, error } = await supabase
         .from('feedback')
@@ -107,43 +104,55 @@ export const getFeedbackByLocation = async (locationId: number): Promise<Feedbac
       
       if (error) throw error;
       
-      // Map Supabase data to our FeedbackEntry type
-      return data.map((item: any) => ({
-        locationId: item.location_id,
-        groupSize: item.group_size,
-        rating: item.rating,
-        comment: item.comment || '',
-        name: item.name || '',
-        timestamp: item.timestamp
-      }));
+      if (data && data.length > 0) {
+        // Map Supabase data to our FeedbackEntry type
+        return data.map((item: any) => ({
+          locationId: item.location_id,
+          groupSize: item.group_size,
+          rating: item.rating,
+          comment: item.comment || '',
+          name: item.name || '',
+          timestamp: item.timestamp
+        }));
+      }
     }
   } catch (error) {
     console.error('Error getting feedback from Supabase:', error);
   }
   
-  // Fallback to localStorage
+  // Fallback to localStorage or if no data was found in Supabase
   const feedback = await getAllFeedback();
   return feedback.filter(entry => entry.locationId === locationId);
 };
 
-// Function to calculate average rating and total visitors
+// Function to calculate statistics for feedback data
 export const getFeedbackStats = async () => {
   try {
-    // Try to get from Supabase first
+    // Try to get from Supabase first if enabled
     if (supabaseEnabled) {
-      const { data: statsData, error: statsError } = await supabase.rpc('get_feedback_stats');
+      const { data, error } = await supabase.rpc('get_feedback_stats');
       
-      if (statsError) {
-        throw statsError;
+      if (error) {
+        console.error('Error from Supabase RPC:', error);
+        throw error;
       }
       
-      return statsData;
+      if (data && data.length > 0) {
+        // Transform data to match our expected format
+        return data.map((item: any) => ({
+          locationId: item.location_id,
+          totalFeedbacks: item.total_feedbacks,
+          avgRating: item.avg_rating,
+          totalVisitors: item.total_visitors,
+          groupSizeDistribution: item.group_size_distribution
+        }));
+      }
     }
   } catch (error) {
     console.error('Error getting feedback stats from Supabase:', error);
   }
   
-  // Fallback to localStorage
+  // Fallback to localStorage calculation or if no data was found in Supabase
   const allFeedback = await getAllFeedback();
   
   // Group feedback by locationId

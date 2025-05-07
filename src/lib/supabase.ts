@@ -1,19 +1,19 @@
 
 import { createClient } from '@supabase/supabase-js';
+import type { Database } from '@/integrations/supabase/types';
 
-// These will be replaced by environment variables in a production environment
-// For now, we're using public keys which are safe to include in the client
-const supabaseUrl = 'https://your-supabase-project-url.supabase.co';
-const supabaseAnonKey = 'your-supabase-anon-key';
+// Using the values from the Supabase integration
+const supabaseUrl = "https://bdqbfuyoktvpkhwcejpr.supabase.co";
+const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkcWJmdXlva3R2cGtod2NlanByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY1NjIyMDcsImV4cCI6MjA2MjEzODIwN30.ADW5sMJoJqdXVcKqXhbKLPqI5GzPIxc2xWI_vOiALQo";
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
 
 // Helper function to check if Supabase connection is working
 export const checkSupabaseConnection = async () => {
   try {
     // Try to get a small amount of data to verify connection
     const { data, error } = await supabase
-      .from('locations')
+      .from('feedback')
       .select('id')
       .limit(1);
     
@@ -67,9 +67,36 @@ export type DbFeedback = {
 };
 
 export type DbAdmin = {
-  id?: number;
+  id?: string;
   email: string;
   role?: string;
   created_at?: string;
   last_login?: string;
+};
+
+// Helper function to check if a user is an admin
+export const checkIsAdmin = async (email: string): Promise<boolean> => {
+  try {
+    const { data, error } = await supabase.rpc('is_admin', { email });
+    
+    if (error) throw error;
+    return data || false;
+  } catch (error) {
+    console.error('Error checking admin status:', error);
+    return false;
+  }
+};
+
+// Helper to update the last login timestamp
+export const updateAdminLastLogin = async (email: string): Promise<void> => {
+  try {
+    const { error } = await supabase
+      .from('admins')
+      .update({ last_login: new Date().toISOString() })
+      .eq('email', email);
+    
+    if (error) throw error;
+  } catch (error) {
+    console.error('Error updating last login:', error);
+  }
 };

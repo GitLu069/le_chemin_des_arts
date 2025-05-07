@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from '@/lib/supabase';
+import { supabase, checkIsAdmin, updateAdminLastLogin } from '@/lib/supabase';
 
 interface LoginFormProps {
   onLoginSuccess: () => void;
@@ -13,18 +13,31 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess, isLoading, setIsL
   const { toast } = useToast();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [errorMsg, setErrorMsg] = useState<string>("");
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setErrorMsg("");
     
     try {
+      // Attempt to sign in with Supabase
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
       
       if (error) throw error;
+      
+      // Check if the user is an admin
+      const isAdmin = await checkIsAdmin(email);
+      
+      if (!isAdmin) {
+        throw new Error("Ce compte n'a pas les droits d'administration.");
+      }
+      
+      // Update last login time
+      await updateAdminLastLogin(email);
       
       toast({
         title: "Accès autorisé",
@@ -34,6 +47,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess, isLoading, setIsL
       onLoginSuccess();
     } catch (error: any) {
       console.error("Login error:", error);
+      setErrorMsg(error.message || "Identifiants incorrects.");
+      
       toast({
         title: "Accès refusé",
         description: error.message || "Identifiants incorrects.",
@@ -47,6 +62,12 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess, isLoading, setIsL
   return (
     <div className="max-w-md mx-auto card">
       <h1 className="mb-6 text-center">Administration</h1>
+      
+      {errorMsg && (
+        <div className="p-3 mb-4 text-sm text-red-800 bg-red-100 rounded-lg">
+          {errorMsg}
+        </div>
+      )}
       
       <form onSubmit={handleLogin} className="space-y-6">
         <div>
