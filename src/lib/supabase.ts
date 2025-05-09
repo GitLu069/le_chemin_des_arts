@@ -1,12 +1,10 @@
-
 import { createClient } from '@supabase/supabase-js';
-import type { Database } from '@/integrations/supabase/types';
 
 // Using the values from the Supabase integration
 const supabaseUrl = "https://bdqbfuyoktvpkhwcejpr.supabase.co";
 const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkcWJmdXlva3R2cGtod2NlanByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY1NjIyMDcsImV4cCI6MjA2MjEzODIwN30.ADW5sMJoJqdXVcKqXhbKLPqI5GzPIxc2xWI_vOiALQo";
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     storage: localStorage,
     persistSession: true,

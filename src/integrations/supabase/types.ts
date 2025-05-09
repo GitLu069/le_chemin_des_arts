@@ -33,6 +33,39 @@ export type Database = {
         }
         Relationships: []
       }
+      artists: {
+        Row: {
+          bio: string | null
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string | null
+          id: number
+          instagram: string | null
+          name: string
+          website: string | null
+        }
+        Insert: {
+          bio?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          id?: number
+          instagram?: string | null
+          name: string
+          website?: string | null
+        }
+        Update: {
+          bio?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          id?: number
+          instagram?: string | null
+          name?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
       feedback: {
         Row: {
           comment: string | null
@@ -60,6 +93,69 @@ export type Database = {
           name?: string | null
           rating?: number
           timestamp?: string
+        }
+        Relationships: []
+      }
+      location_artists: {
+        Row: {
+          artist_id: number | null
+          created_at: string | null
+          id: number
+          location_id: number | null
+        }
+        Insert: {
+          artist_id?: number | null
+          created_at?: string | null
+          id?: number
+          location_id?: number | null
+        }
+        Update: {
+          artist_id?: number | null
+          created_at?: string | null
+          id?: number
+          location_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "location_artists_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "location_artists_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      locations: {
+        Row: {
+          created_at: string | null
+          description: string
+          id: number
+          image: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          id?: number
+          image: string
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          id?: number
+          image?: string
+          name?: string
+          slug?: string
         }
         Relationships: []
       }

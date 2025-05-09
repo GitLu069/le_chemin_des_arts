@@ -1,3 +1,4 @@
+
 import { artworks } from './artworks';
 import { supabase } from '@/lib/supabase';
 
@@ -89,10 +90,10 @@ export const fetchLocations = async (): Promise<Location[]> => {
       return fetchedLocations;
     }
 
-    // Try to fetch locations from Supabase
+    // Try to fetch locations from Supabase using a type-safe approach
     const { data: locationsData, error: locationsError } = await supabase
       .from('locations')
-      .select('*');
+      .select('*') as { data: any[], error: any };
 
     if (locationsError) {
       console.error('Error fetching locations:', locationsError);
@@ -105,7 +106,7 @@ export const fetchLocations = async (): Promise<Location[]> => {
       .select(`
         location_id,
         artists:artist_id(name)
-      `);
+      `) as { data: any[], error: any };
 
     if (relationshipError) {
       console.error('Error fetching location-artist relationships:', relationshipError);
