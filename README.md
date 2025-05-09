@@ -6,7 +6,7 @@ Application web permettant de collecter les avis des visiteurs sur chaque œuvre
 ## Fonctionnalités
 
 - Page d'accueil et présentation de l'événement
-- Pages dédiées pour 12 œuvres fictives avec formulaires de feedback
+- Pages dédiées pour les œuvres avec formulaires de feedback
 - Notation par étoiles et commentaires
 - Comptage des visiteurs par œuvre
 - Tableau de bord administratif avec statistiques
@@ -19,9 +19,9 @@ Application web permettant de collecter les avis des visiteurs sur chaque œuvre
 
 Pour accéder au tableau de bord administratif:
 - Naviguez vers la page `/admin`
-- Utilisez le mot de passe: `artpath2025`
+- Connectez-vous avec un compte administrateur autorisé
 
-Vous pouvez également accéder directement via cette URL: `/admin?token=artpath2025`
+Les comptes administrateurs sont gérés via le système d'authentification sécurisé de l'application.
 
 ### 2. Personnaliser les œuvres
 
@@ -57,12 +57,10 @@ Depuis l'interface administrateur (`/admin`), vous pouvez:
 
 ### 5. Stockage des données
 
-Cette application utilise le stockage local du navigateur (localStorage) pour stocker les données de feedback.
-Pour une utilisation en production, il est recommandé d'implémenter une solution de stockage plus robuste:
-
-- Intégration avec Google Sheets via Google Apps Script
-- Utilisation de services comme Formspree, Getform, ou un webhook simple
-- Base de données légère comme Supabase ou Firebase
+Cette application utilise Supabase pour le stockage sécurisé des données:
+- Authentification sécurisée pour les administrateurs
+- Stockage des données de feedback
+- Synchronisation en temps réel
 
 ## Déploiement
 
@@ -85,6 +83,7 @@ Instructions:
 - React Router
 - QRCode.react pour la génération des QR codes
 - Recharts pour les graphiques dans le tableau de bord
+- Supabase pour l'authentification et le stockage des données
 
 ## Personnalisation avancée
 

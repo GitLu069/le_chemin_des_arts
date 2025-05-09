@@ -21,6 +21,20 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess, isLoading, setIsL
     setErrorMsg("");
     
     try {
+      // Clean up any existing auth state
+      Object.keys(localStorage).forEach((key) => {
+        if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+          localStorage.removeItem(key);
+        }
+      });
+      
+      // Attempt to sign out globally first
+      try {
+        await supabase.auth.signOut({ scope: 'global' });
+      } catch (err) {
+        // Ignore errors here, continue with sign in
+      }
+      
       // Attempt to sign in with Supabase
       const { data, error } = await supabase.auth.signInWithPassword({
         email,

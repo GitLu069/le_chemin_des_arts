@@ -1,12 +1,5 @@
-
 import { artworks } from './artworks';
-import { createClient } from '@supabase/supabase-js';
-
-// Utilisation d'un client non typé pour éviter les erreurs TypeScript
-// tout en gardant la même URL et clé que le client typé
-const supabaseUrl = "https://bdqbfuyoktvpkhwcejpr.supabase.co";
-const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkcWJmdXlva3R2cGtod2NlanByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY1NjIyMDcsImV4cCI6MjA2MjEzODIwN30.ADW5sMJoJqdXVcKqXhbKLPqI5GzPIxc2xWI_vOiALQo";
-const supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+import { supabase } from '@/lib/supabase';
 
 export interface Location {
   id: number;
@@ -97,7 +90,7 @@ export const fetchLocations = async (): Promise<Location[]> => {
     }
 
     // Try to fetch locations from Supabase
-    const { data: locationsData, error: locationsError } = await supabaseClient
+    const { data: locationsData, error: locationsError } = await supabase
       .from('locations')
       .select('*');
 
@@ -107,7 +100,7 @@ export const fetchLocations = async (): Promise<Location[]> => {
     }
 
     // Try to fetch location-artists relationships
-    const { data: locationArtistsData, error: relationshipError } = await supabaseClient
+    const { data: locationArtistsData, error: relationshipError } = await supabase
       .from('location_artists')
       .select(`
         location_id,

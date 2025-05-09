@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import Layout from '@/components/Layout';
-import { supabase, checkIsAdmin } from '@/lib/supabase';
+import { supabase, checkIsAdmin, cleanupAuthState } from '@/lib/supabase';
 import { getLocations } from '@/data/locations';
 import { getFeedbackStats, downloadCSV } from '@/utils/storage';
 import LoginForm from '@/components/admin/LoginForm';
@@ -11,7 +11,6 @@ import StatsOverview from '@/components/admin/StatsOverview';
 import LocationDetails from '@/components/admin/LocationDetails';
 
 const Admin = () => {
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -25,49 +24,66 @@ const Admin = () => {
   // Check if user is already authenticated
   useEffect(() => {
     const checkSession = async () => {
-      // Get current session
-      const { data } = await supabase.auth.getSession();
-      
-      if (data.session) {
-        const email = data.session.user.email;
-        setUserEmail(email || null);
+      try {
+        // Get current session
+        const { data } = await supabase.auth.getSession();
         
-        // Check if user is an admin
-        if (email) {
-          const isAdmin = await checkIsAdmin(email);
-          setIsAuthorized(isAdmin);
+        if (data.session) {
+          const email = data.session.user.email;
+          setUserEmail(email || null);
           
-          if (isAdmin) {
-            loadData();
-          } else {
-            toast({
-              title: "Accès refusé",
-              description: "Vous n'avez pas les droits d'administration.",
-              variant: "destructive"
-            });
+          // Check if user is an admin
+          if (email) {
+            const isAdmin = await checkIsAdmin(email);
+            setIsAuthorized(isAdmin);
+            
+            if (isAdmin) {
+              loadData();
+            } else {
+              toast({
+                title: "Accès refusé",
+                description: "Vous n'avez pas les droits d'administration.",
+                variant: "destructive"
+              });
+            }
           }
-        }
-      } else {
-        // Check if token is in URL (for direct access)
-        const token = searchParams.get('token');
-        if (token === 'artpath2025') {
-          setIsAuthorized(true);
-          loadData();
-          
-          toast({
-            title: "Accès direct",
-            description: "Mode administrateur activé via token.",
-          });
         } else {
           setIsAuthorized(false);
         }
+      } catch (error) {
+        console.error("Error checking session:", error);
+        setIsAuthorized(false);
+      } finally {
+        setIsLoading(false);
       }
-      
-      setIsLoading(false);
     };
     
+    // Set up auth state change listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        // Only synchronous state updates here
+        if (session?.user?.email) {
+          setUserEmail(session.user.email);
+          // Defer checking admin status with setTimeout to prevent deadlocks
+          setTimeout(async () => {
+            const isAdmin = await checkIsAdmin(session.user.email!);
+            setIsAuthorized(isAdmin);
+            if (isAdmin) loadData();
+          }, 0);
+        } else {
+          setIsAuthorized(false);
+          setUserEmail(null);
+        }
+      }
+    );
+    
     checkSession();
-  }, [searchParams, toast]);
+    
+    // Cleanup subscription on unmount
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [toast]);
   
   // Load all data if authorized
   const loadData = async () => {
@@ -108,15 +124,31 @@ const Admin = () => {
   };
   
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setIsAuthorized(false);
-    setUserEmail(null);
-    navigate('/');
-    
-    toast({
-      title: "Déconnexion réussie",
-      description: "Vous avez été déconnecté avec succès."
-    });
+    try {
+      // Clean up auth state
+      cleanupAuthState();
+      
+      // Sign out with Supabase
+      await supabase.auth.signOut({ scope: 'global' });
+      
+      setIsAuthorized(false);
+      setUserEmail(null);
+      
+      toast({
+        title: "Déconnexion réussie",
+        description: "Vous avez été déconnecté avec succès."
+      });
+      
+      // Force page reload for clean state
+      window.location.href = '/';
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast({
+        title: "Erreur",
+        description: "Problème lors de la déconnexion.",
+        variant: "destructive"
+      });
+    }
   };
   
   if (isLoading) {
