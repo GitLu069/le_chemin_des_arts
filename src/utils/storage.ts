@@ -1,5 +1,5 @@
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 
 // Type definition for feedback entries
 export type FeedbackEntry = {
@@ -36,7 +36,7 @@ export const saveFeedbackToSupabase = async (feedback: {
   try {
     const { error } = await supabase
       .from('feedback')
-      .insert([feedback]);
+      .insert([feedback]) as { error: any };
     
     if (error) {
       throw error;
@@ -100,7 +100,7 @@ export const getFeedbackByLocation = async (locationId: number): Promise<Feedbac
       const { data, error } = await supabase
         .from('feedback')
         .select('*')
-        .eq('location_id', locationId);
+        .eq('location_id', locationId) as { data: any[], error: any };
       
       if (error) throw error;
       
@@ -130,7 +130,7 @@ export const getFeedbackStats = async () => {
   try {
     // Try to get from Supabase first if enabled
     if (supabaseEnabled) {
-      const { data, error } = await supabase.rpc('get_feedback_stats');
+      const { data, error } = await supabase.rpc('get_feedback_stats') as { data: any[], error: any };
       
       if (error) {
         console.error('Error from Supabase RPC:', error);
@@ -146,6 +146,57 @@ export const getFeedbackStats = async () => {
           totalVisitors: item.total_visitors,
           groupSizeDistribution: item.group_size_distribution
         }));
+      }
+      
+      // If no data from RPC, try direct query
+      const { data: feedbackData, error: feedbackError } = await supabase
+        .from('feedback')
+        .select('*') as { data: any[], error: any };
+        
+      if (feedbackError) throw feedbackError;
+      
+      if (feedbackData && feedbackData.length > 0) {
+        // Get all locations
+        const { data: locationsData } = await supabase
+          .from('locations')
+          .select('id, name, description') as { data: any[] };
+          
+        // Group by location
+        const groupedByLocation: Record<number, any[]> = {};
+        feedbackData.forEach((item: any) => {
+          const locationId = item.location_id;
+          if (!groupedByLocation[locationId]) {
+            groupedByLocation[locationId] = [];
+          }
+          groupedByLocation[locationId].push(item);
+        });
+        
+        // Calculate stats for each location
+        return Object.entries(groupedByLocation).map(([locationId, feedbacks]) => {
+          const location = locationsData?.find((loc: any) => loc.id === parseInt(locationId));
+          
+          const totalFeedbacks = feedbacks.length;
+          const totalRating = feedbacks.reduce((sum: number, item: any) => sum + item.rating, 0);
+          const avgRating = totalRating / totalFeedbacks;
+          const totalVisitors = feedbacks.reduce((sum: number, item: any) => sum + item.group_size, 0);
+          
+          // Group size distribution
+          const groupSizeDistribution: Record<number, number> = {};
+          feedbacks.forEach((item: any) => {
+            const groupSize = item.group_size;
+            groupSizeDistribution[groupSize] = (groupSizeDistribution[groupSize] || 0) + 1;
+          });
+          
+          return {
+            locationId: parseInt(locationId),
+            title: location?.name || `Lieu ${locationId}`,
+            description: location?.description || '',
+            totalFeedbacks,
+            avgRating,
+            totalVisitors,
+            groupSizeDistribution
+          };
+        });
       }
     }
   } catch (error) {

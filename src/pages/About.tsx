@@ -34,6 +34,7 @@ const About = () => {
             </div>
             
             <p>
+              Ce projet est porté par des habitants bénévoles, des artistes engagés, et des amoureux du territoire.
               Le parcours est réparti dans 8 lieux emblématiques du village et met en lumière 
               des artistes contemporains dans un dialogue avec le patrimoine local et la nature.
             </p>

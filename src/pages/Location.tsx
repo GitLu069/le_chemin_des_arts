@@ -87,27 +87,10 @@ const Location = () => {
                 className="w-full h-64 object-cover rounded-lg mb-4"
               />
             </div>
-            
-            {location.artists.length > 0 ? (
-              <div className="p-4 bg-artPath-cream/30 rounded-lg">
-                <h3 className="mb-2">Artistes présents à cet endroit :</h3>
-                <ul className="list-disc list-inside space-y-1 ml-2">
-                  {location.artists.map((artist, index) => (
-                    <li key={index}>{artist}</li>
-                  ))}
-                </ul>
-              </div>
-            ) : (
-              <div className="p-4 bg-artPath-cream/30 rounded-lg">
-                <p className="italic text-gray-600">
-                  Ce lieu accueille des expositions ponctuelles tout au long de l'événement.
-                </p>
-              </div>
-            )}
           </div>
           
           <div className="card mb-8">
-            <h2 className="text-xl font-medium mb-4">Votre avis nous intéresse</h2>
+            <h2 className="text-xl font-medium mb-4">Donnez-nous votre avis sur ce lieu</h2>
             <FeedbackForm locationId={location.id} />
           </div>
         </div>
