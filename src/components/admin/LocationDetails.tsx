@@ -9,6 +9,15 @@ interface LocationDetailsProps {
   onClose: () => void;
 }
 
+// Define the feedback type to avoid 'unknown' type errors
+interface Feedback {
+  timestamp: string;
+  name?: string;
+  groupSize: number;
+  rating: number;
+  comment?: string;
+}
+
 const LocationDetails: React.FC<LocationDetailsProps> = ({ 
   selectedLocation, 
   stats, 
@@ -63,7 +72,7 @@ const LocationDetails: React.FC<LocationDetailsProps> = ({
           {Object.entries(locationData.groupSizeDistribution).map(([size, count]) => (
             <div key={size} className="bg-gray-50 p-3 rounded text-center">
               <p className="font-medium">{size} personnes</p>
-              <p className="text-gray-600">{count} visite(s)</p>
+              <p className="text-gray-600">{String(count)} visite(s)</p>
             </div>
           ))}
         </div>
@@ -82,7 +91,7 @@ const LocationDetails: React.FC<LocationDetailsProps> = ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {locationData.feedbacks && locationData.feedbacks.map((feedback: any, index: number) => (
+            {locationData.feedbacks && locationData.feedbacks.map((feedback: Feedback, index: number) => (
               <TableRow key={index}>
                 <TableCell>
                   {new Date(feedback.timestamp).toLocaleString('fr-FR', {
