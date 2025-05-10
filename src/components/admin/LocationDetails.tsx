@@ -79,7 +79,7 @@ const LocationDetails: React.FC<Props> = ({ selectedLocation, stats, onClose }) 
                   <TableCell>{feedback.name || '-'}</TableCell>
                   <TableCell className="text-center">{feedback.groupSize} pers.</TableCell>
                   <TableCell className="text-center">
-                    <StarRating value={feedback.rating} readOnly size="sm" />
+                    <StarRating value={feedback.rating} readOnly={true} size="sm" />
                   </TableCell>
                   <TableCell className="max-w-xs truncate">
                     {feedback.comment || '-'}
@@ -108,7 +108,7 @@ const LocationDetails: React.FC<Props> = ({ selectedLocation, stats, onClose }) 
             <div>
               <p className="text-gray-500 text-sm">Note moyenne</p>
               <div className="flex items-center gap-2">
-                <StarRating value={locationStat?.avgRating || feedbacks.reduce((sum, f) => sum + f.rating, 0) / feedbacks.length} readOnly size="sm" />
+                <StarRating value={locationStat?.avgRating || feedbacks.reduce((sum, f) => sum + f.rating, 0) / feedbacks.length} readOnly={true} size="sm" />
                 <span className="font-bold">
                   {(locationStat?.avgRating || feedbacks.reduce((sum, f) => sum + f.rating, 0) / feedbacks.length).toFixed(1)}
                 </span>

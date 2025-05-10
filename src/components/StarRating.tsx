@@ -6,15 +6,34 @@ export interface StarRatingProps {
   rating?: number;
   onChange?: (rating: number) => void;
   onRatingChange?: (rating: number) => void;
+  readOnly?: boolean;
+  size?: "sm" | "md" | "lg";
 }
 
-const StarRating: React.FC<StarRatingProps> = ({ value, rating, onChange, onRatingChange }) => {
+const StarRating: React.FC<StarRatingProps> = ({ 
+  value, 
+  rating, 
+  onChange, 
+  onRatingChange,
+  readOnly = false,
+  size = "md" 
+}) => {
   // Use the appropriate prop based on what's passed
   const currentRating = rating !== undefined ? rating : (value !== undefined ? value : 0);
   const handleRatingChange = (star: number) => {
+    if (readOnly) return;
     if (onChange) onChange(star);
     if (onRatingChange) onRatingChange(star);
   };
+
+  // Define size mappings
+  const sizeMap = {
+    sm: { width: "w-5", height: "h-5" },
+    md: { width: "w-6", height: "h-6" },
+    lg: { width: "w-8", height: "h-8" }
+  };
+
+  const { width, height } = sizeMap[size];
 
   return (
     <div className="flex items-center gap-1">
@@ -23,12 +42,13 @@ const StarRating: React.FC<StarRatingProps> = ({ value, rating, onChange, onRati
           key={star}
           type="button"
           onClick={() => handleRatingChange(star)}
-          className="focus:outline-none"
+          className={`focus:outline-none ${readOnly ? 'cursor-default' : 'cursor-pointer'}`}
           aria-label={`${star} étoile${star > 1 ? 's' : ''}`}
+          disabled={readOnly}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-8 w-8"
+            className={`${width} ${height}`}
             fill={star <= currentRating ? '#FFC107' : 'none'}
             viewBox="0 0 24 24"
             stroke={star <= currentRating ? '#FFC107' : '#D1D5DB'}
