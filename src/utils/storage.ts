@@ -33,13 +33,16 @@ export const saveFeedbackToSupabase = async (feedback: {
   timestamp: string;
 }): Promise<void> => {
   try {
+    console.log("Saving feedback to Supabase:", feedback);
     const { error } = await supabase
       .from('feedback')
       .insert([feedback]) as { error: any };
     
     if (error) {
+      console.error("Error saving feedback to Supabase:", error);
       throw error;
     }
+    console.log("Feedback saved to Supabase successfully");
   } catch (error) {
     console.error("Error saving feedback to Supabase:", error);
     throw error; // Re-throw to be caught by the caller
@@ -136,29 +139,9 @@ export const getFeedbackStats = async () => {
   try {
     // Try to get from Supabase first if enabled
     if (supabaseEnabled) {
-      console.log('Fetching feedback stats from Supabase RPC');
-      const { data, error } = await supabase.rpc('get_feedback_stats') as { data: any[], error: any };
+      console.log('Fetching feedback stats from Supabase');
       
-      if (error) {
-        console.error('Error from Supabase RPC:', error);
-        throw error;
-      }
-      
-      console.log(`Received stats for ${data?.length || 0} locations from Supabase RPC`);
-      
-      if (data && data.length > 0) {
-        // Transform data to match our expected format
-        return data.map((item: any) => ({
-          locationId: item.location_id,
-          totalFeedbacks: item.total_feedbacks,
-          avgRating: item.avg_rating,
-          totalVisitors: item.total_visitors,
-          groupSizeDistribution: item.group_size_distribution
-        }));
-      }
-      
-      // If no data from RPC, try direct query
-      console.log('No data from RPC, trying direct query');
+      // First try the direct query approach instead of RPC
       const { data: feedbackData, error: feedbackError } = await supabase
         .from('feedback')
         .select('*') as { data: any[], error: any };
@@ -216,6 +199,8 @@ export const getFeedbackStats = async () => {
             groupSizeDistribution
           };
         });
+      } else {
+        console.log('No feedback data found in Supabase');
       }
     }
   } catch (error) {

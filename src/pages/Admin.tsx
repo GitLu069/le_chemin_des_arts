@@ -88,26 +88,61 @@ const Admin = () => {
   // Load all data if authorized
   const loadData = async () => {
     try {
+      console.log("Loading admin dashboard data...");
+      setIsLoading(true);
+      
       // Load locations
       const locations = await getLocations();
       setLocationsData(locations);
+      console.log("Locations loaded:", locations);
       
       // Load stats
       const statsData = await getFeedbackStats();
+      console.log("Stats data loaded:", statsData);
       
-      // Merge location info with stats
-      const statsWithInfo = statsData.map(stat => {
-        const location = locations.find(l => l.id === stat.locationId);
-        return {
-          ...stat,
-          title: location ? location.name : `Lieu ${stat.locationId}`,
-          description: location ? location.description : 'Description non disponible'
-        };
-      });
+      // For each location, fetch individual feedbacks
+      const enhancedStats = await Promise.all(statsData.map(async (stat) => {
+        try {
+          console.log(`Fetching feedbacks for location ${stat.locationId}...`);
+          
+          // Try to get from Supabase
+          const { data: feedbackData, error } = await supabase
+            .from('feedback')
+            .select('*')
+            .eq('location_id', stat.locationId)
+            .order('timestamp', { ascending: false });
+          
+          if (error) {
+            console.error(`Error fetching feedback for location ${stat.locationId}:`, error);
+            throw error;
+          }
+          
+          console.log(`Received ${feedbackData?.length || 0} feedbacks for location ${stat.locationId}`);
+          
+          // Merge with location info
+          const location = locations.find(l => l.id === stat.locationId);
+          return {
+            ...stat,
+            title: location ? location.name : `Lieu ${stat.locationId}`,
+            description: location ? location.description : 'Description non disponible',
+            feedbacks: feedbackData || []
+          };
+        } catch (error) {
+          console.error(`Error enhancing stats for location ${stat.locationId}:`, error);
+          const location = locations.find(l => l.id === stat.locationId);
+          return {
+            ...stat,
+            title: location ? location.name : `Lieu ${stat.locationId}`,
+            description: location ? location.description : 'Description non disponible',
+            feedbacks: []
+          };
+        }
+      }));
       
-      setStats(statsWithInfo);
+      console.log("Enhanced stats with feedbacks:", enhancedStats);
+      setStats(enhancedStats);
       
-      if (statsWithInfo.length === 0) {
+      if (enhancedStats.length === 0) {
         toast({
           title: "Information",
           description: "Aucune donnée n'est disponible pour le moment."
@@ -120,6 +155,8 @@ const Admin = () => {
         description: "Impossible de charger les données.",
         variant: "destructive"
       });
+    } finally {
+      setIsLoading(false);
     }
   };
   
@@ -187,6 +224,12 @@ const Admin = () => {
             {userEmail && <p className="text-sm text-gray-500">Connecté en tant que {userEmail}</p>}
           </div>
           <div className="flex gap-4">
+            <button 
+              onClick={() => loadData()}
+              className="btn-secondary"
+            >
+              Rafraîchir
+            </button>
             <button 
               onClick={downloadCSV}
               className="btn-secondary"
