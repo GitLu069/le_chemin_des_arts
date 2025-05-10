@@ -11,9 +11,8 @@ export type FeedbackEntry = {
   timestamp: string;
 };
 
-// Flag to enable/disable Supabase usage
-// Using import.meta.env instead of process.env for Vite compatibility
-const supabaseEnabled = true; // Always enable Supabase now that it's properly configured
+// Flag to enable Supabase usage
+const supabaseEnabled = true;
 
 // Function to save feedback to local storage
 export const saveFeedbackLocally = (feedback: FeedbackEntry): void => {
@@ -97,12 +96,18 @@ export const getFeedbackByLocation = async (locationId: number): Promise<Feedbac
   try {
     // Try to get from Supabase first if enabled
     if (supabaseEnabled) {
+      console.log(`Fetching feedback for location ${locationId} from Supabase`);
       const { data, error } = await supabase
         .from('feedback')
         .select('*')
         .eq('location_id', locationId) as { data: any[], error: any };
       
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+      
+      console.log(`Received ${data?.length || 0} feedbacks from Supabase`);
       
       if (data && data.length > 0) {
         // Map Supabase data to our FeedbackEntry type
@@ -120,6 +125,7 @@ export const getFeedbackByLocation = async (locationId: number): Promise<Feedbac
     console.error('Error getting feedback from Supabase:', error);
   }
   
+  console.log('Falling back to localStorage');
   // Fallback to localStorage or if no data was found in Supabase
   const feedback = await getAllFeedback();
   return feedback.filter(entry => entry.locationId === locationId);
@@ -130,12 +136,15 @@ export const getFeedbackStats = async () => {
   try {
     // Try to get from Supabase first if enabled
     if (supabaseEnabled) {
+      console.log('Fetching feedback stats from Supabase RPC');
       const { data, error } = await supabase.rpc('get_feedback_stats') as { data: any[], error: any };
       
       if (error) {
         console.error('Error from Supabase RPC:', error);
         throw error;
       }
+      
+      console.log(`Received stats for ${data?.length || 0} locations from Supabase RPC`);
       
       if (data && data.length > 0) {
         // Transform data to match our expected format
@@ -149,11 +158,17 @@ export const getFeedbackStats = async () => {
       }
       
       // If no data from RPC, try direct query
+      console.log('No data from RPC, trying direct query');
       const { data: feedbackData, error: feedbackError } = await supabase
         .from('feedback')
         .select('*') as { data: any[], error: any };
         
-      if (feedbackError) throw feedbackError;
+      if (feedbackError) {
+        console.error('Error from direct query:', feedbackError);
+        throw feedbackError;
+      }
+      
+      console.log(`Received ${feedbackData?.length || 0} feedbacks from direct query`);
       
       if (feedbackData && feedbackData.length > 0) {
         // Get all locations
@@ -161,6 +176,8 @@ export const getFeedbackStats = async () => {
           .from('locations')
           .select('id, name, description') as { data: any[] };
           
+        console.log(`Received ${locationsData?.length || 0} locations`);
+        
         // Group by location
         const groupedByLocation: Record<number, any[]> = {};
         feedbackData.forEach((item: any) => {
@@ -170,6 +187,8 @@ export const getFeedbackStats = async () => {
           }
           groupedByLocation[locationId].push(item);
         });
+        
+        console.log(`Found feedback for ${Object.keys(groupedByLocation).length} locations`);
         
         // Calculate stats for each location
         return Object.entries(groupedByLocation).map(([locationId, feedbacks]) => {
@@ -203,6 +222,7 @@ export const getFeedbackStats = async () => {
     console.error('Error getting feedback stats from Supabase:', error);
   }
   
+  console.log('Falling back to localStorage for stats calculation');
   // Fallback to localStorage calculation or if no data was found in Supabase
   const allFeedback = await getAllFeedback();
   

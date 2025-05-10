@@ -8,8 +8,7 @@ import {
   NavigationMenuItem, 
   NavigationMenuTrigger, 
   NavigationMenuContent,
-  NavigationMenuLink
-} from '@/components/ui/navigation-menu';
+} from "@/components/ui/navigation-menu";
 
 interface LayoutProps {
   children: React.ReactNode;
