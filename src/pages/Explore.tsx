@@ -2,10 +2,19 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '@/components/Layout';
-import { getLocations, Location } from '@/data/locations';
+import { getLocations, Location, fallbackLocations } from '@/data/locations';
 import QRCodeGenerator from '@/components/QRCodeGenerator';
 import { MapPin, Leaf } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 const Explore = () => {
   const [locations, setLocations] = useState<Location[]>([]);
@@ -15,16 +24,38 @@ const Explore = () => {
   useEffect(() => {
     const fetchLocationsData = async () => {
       try {
+        console.log('Fetching locations for Explore page...');
+        // Try to get locations from API
         const data = await getLocations();
+        
         console.log('Fetched locations:', data);
-        setLocations(data);
+        
+        // If we got no data and we have fallback data, use that
+        if ((!data || data.length === 0) && fallbackLocations.length > 0) {
+          console.log('No locations fetched, using fallback data');
+          setLocations(fallbackLocations);
+        } else {
+          setLocations(data);
+        }
       } catch (error) {
         console.error('Error fetching locations:', error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de charger les lieux du parcours.",
-          variant: "destructive",
-        });
+        
+        // If we have fallback data, use it
+        if (fallbackLocations.length > 0) {
+          console.log('Error occurred, using fallback locations data');
+          setLocations(fallbackLocations);
+          toast({
+            title: "Information",
+            description: "Utilisation des données locales pour afficher les lieux.",
+            variant: "default",
+          });
+        } else {
+          toast({
+            title: "Erreur",
+            description: "Impossible de charger les lieux du parcours.",
+            variant: "destructive",
+          });
+        }
       } finally {
         setIsLoading(false);
       }
@@ -37,8 +68,27 @@ const Explore = () => {
     return (
       <Layout>
         <div className="container-custom py-8">
-          <div className="text-center">
-            <p>Chargement des lieux...</p>
+          <div className="max-w-4xl mx-auto mb-8 text-center">
+            <h1 className="mb-4 text-artPath-text">Parcours Artistique</h1>
+            <p className="text-lg mb-6 text-gray-600">
+              Découvrez les œuvres d'art à travers différents lieux emblématiques 
+              de Poleymieux-au-Mont-d'Or. Scannez le QR code à chaque lieu pour une 
+              expérience immersive.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <Card key={i} className="overflow-hidden">
+                <CardHeader className="p-0">
+                  <Skeleton className="h-48 w-full" />
+                </CardHeader>
+                <CardContent className="p-5 flex flex-col items-center">
+                  <Skeleton className="h-[150px] w-[150px] mb-4" />
+                  <Skeleton className="h-10 w-full" />
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </Layout>
@@ -65,35 +115,41 @@ const Explore = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {locations.map((location) => (
-              <div key={location.id} className="location-card overflow-hidden flex flex-col h-full animate-scale-in">
-                <div className="location-card-header">
-                  <h3 className="flex items-center gap-2">
+              <Card key={location.id} className="overflow-hidden flex flex-col h-full animate-scale-in">
+                <CardHeader className="p-0">
+                  <div className="h-48 overflow-hidden">
+                    <img 
+                      src={location.image} 
+                      alt={location.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        console.error(`Error loading image for ${location.name}`);
+                        e.currentTarget.src = "/placeholder.svg";
+                      }}
+                    />
+                  </div>
+                </CardHeader>
+                
+                <CardContent className="p-5 flex-1 flex flex-col">
+                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                     <MapPin className="h-5 w-5" />
                     {location.name}
                   </h3>
-                </div>
-                
-                <div className="h-48 overflow-hidden">
-                  <img 
-                    src={location.image} 
-                    alt={location.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                
-                <div className="p-5 flex flex-col items-center justify-center">
-                  <div className="mb-4 flex justify-center">
+                  
+                  <div className="mb-4 flex justify-center flex-1">
                     <QRCodeGenerator url={`/location/${location.slug}`} size={150} />
                   </div>
-                  
+                </CardContent>
+                
+                <CardFooter className="p-5 pt-0">
                   <Link 
                     to={`/location/${location.slug}`} 
                     className="w-full text-center inline-flex items-center justify-center px-4 py-2 rounded-lg bg-artPath-accent text-white hover:bg-green-700 transition-colors"
                   >
                     Découvrir ce lieu
                   </Link>
-                </div>
-              </div>
+                </CardFooter>
+              </Card>
             ))}
           </div>
         )}

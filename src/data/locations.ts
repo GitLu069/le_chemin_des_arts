@@ -82,7 +82,7 @@ export const fallbackLocations: Location[] = [
 // Variable to store fetched locations
 let fetchedLocations: Location[] | null = null;
 
-// Fetch locations from Supabase
+// Modified fetchLocations function to ensure we always return data
 export const fetchLocations = async (): Promise<Location[]> => {
   try {
     console.log('Attempting to fetch locations from Supabase...');
@@ -101,10 +101,19 @@ export const fetchLocations = async (): Promise<Location[]> => {
     if (locationsError) {
       console.error('Error fetching locations from Supabase:', locationsError);
       console.log('Falling back to static data');
+      // Important: Set fetchedLocations to fallback to cache it
+      fetchedLocations = fallbackLocations;
       return fallbackLocations;
     }
 
     console.log('Locations data from Supabase:', locationsData);
+
+    // If Supabase returns empty data, use fallback
+    if (!locationsData || locationsData.length === 0) {
+      console.log('No locations found in Supabase, using fallback data');
+      fetchedLocations = fallbackLocations;
+      return fallbackLocations;
+    }
 
     // Try to fetch location-artists relationships
     const { data: locationArtistsData, error: relationshipError } = await supabase
@@ -154,15 +163,24 @@ export const fetchLocations = async (): Promise<Location[]> => {
   } catch (error) {
     console.error('Unexpected error in fetchLocations:', error);
     console.log('Falling back to static data due to error');
+    // Important: Set fetchedLocations to fallback to cache it
+    fetchedLocations = fallbackLocations;
     return fallbackLocations;
   }
 };
 
-// Export the locations getter function that tries Supabase first, then fallback
+// Modified getLocations to always return data (either from Supabase or fallback)
 export const getLocations = async (): Promise<Location[]> => {
   try {
     console.log('getLocations called');
     const locations = await fetchLocations();
+    
+    // If locations is empty (unlikely now), return fallback
+    if (!locations || locations.length === 0) {
+      console.log('fetchLocations returned empty, using fallback data');
+      return fallbackLocations;
+    }
+    
     console.log(`getLocations returning ${locations.length} locations`);
     return locations;
   } catch (error) {
