@@ -5,13 +5,11 @@ import Layout from '@/components/Layout';
 
 const ThankYou = () => {
   const location = useLocation();
-  const { from } = location.state || {};
+  const { from } = location.state || { from: undefined };
 
-  // Redirect to home if accessed directly without coming from an artwork
-  if (!from) {
-    return <Navigate to="/" replace />;
-  }
-
+  // Ne redirige plus si la page est accédée directement
+  // Permettant une meilleure expérience utilisateur
+  
   return (
     <Layout>
       <div className="container-custom py-12 animate-fade-in">

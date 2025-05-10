@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -54,7 +55,7 @@ const FeedbackForm: React.FC<FeedbackFormProps> = ({ locationId }) => {
         rating: data.rating,
         comment: data.comment || '',
         timestamp: new Date().toISOString(),
-        name: data.name
+        name: data.name || ''
       });
       
       toast({
@@ -62,9 +63,8 @@ const FeedbackForm: React.FC<FeedbackFormProps> = ({ locationId }) => {
         description: "Votre participation a été enregistrée avec succès.",
       });
       
-      setTimeout(() => {
-        navigate('/merci');
-      }, 1500);
+      // Rediriger vers la page de remerciement avec les informations sur la provenance
+      navigate('/merci', { state: { from: 'feedback' } });
     } catch (error) {
       toast({
         title: "Erreur",

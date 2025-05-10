@@ -2,9 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '@/components/Layout';
-import { getLocations, Location, fallbackLocations } from '@/data/locations';
+import { getLocations, Location } from '@/data/locations';
 import QRCodeGenerator from '@/components/QRCodeGenerator';
-import { MapPin, Leaf } from 'lucide-react';
+import { MapPin, Leaf, RefreshCw } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -15,54 +15,53 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Button } from '@/components/ui/button';
 
 const Explore = () => {
   const [locations, setLocations] = useState<Location[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const { toast } = useToast();
 
-  useEffect(() => {
-    const fetchLocationsData = async () => {
-      try {
-        console.log('Fetching locations for Explore page...');
-        // Try to get locations from API
-        const data = await getLocations();
-        
-        console.log('Fetched locations:', data);
-        
-        // If we got no data and we have fallback data, use that
-        if ((!data || data.length === 0) && fallbackLocations.length > 0) {
-          console.log('No locations fetched, using fallback data');
-          setLocations(fallbackLocations);
-        } else {
-          setLocations(data);
-        }
-      } catch (error) {
-        console.error('Error fetching locations:', error);
-        
-        // If we have fallback data, use it
-        if (fallbackLocations.length > 0) {
-          console.log('Error occurred, using fallback locations data');
-          setLocations(fallbackLocations);
-          toast({
-            title: "Information",
-            description: "Utilisation des données locales pour afficher les lieux.",
-            variant: "default",
-          });
-        } else {
-          toast({
-            title: "Erreur",
-            description: "Impossible de charger les lieux du parcours.",
-            variant: "destructive",
-          });
-        }
-      } finally {
-        setIsLoading(false);
+  const fetchLocationsData = async () => {
+    try {
+      console.log('Fetching locations for Explore page...');
+      // Try to get locations from API
+      const data = await getLocations();
+      
+      console.log('Fetched locations:', data);
+      setLocations(data);
+      
+      if (isRefreshing) {
+        toast({
+          title: "Actualisation réussie",
+          description: "Les lieux ont été mis à jour.",
+          variant: "default",
+        });
+        setIsRefreshing(false);
       }
-    };
+    } catch (error) {
+      console.error('Error fetching locations:', error);
+      
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger les lieux du parcours.",
+        variant: "destructive",
+      });
+      setIsRefreshing(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchLocationsData();
-  }, [toast]);
+  }, []);
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    fetchLocationsData();
+  };
 
   if (isLoading) {
     return (
@@ -105,12 +104,28 @@ const Explore = () => {
             de Poleymieux-au-Mont-d'Or. Scannez le QR code à chaque lieu pour une 
             expérience immersive.
           </p>
+          <Button 
+            onClick={handleRefresh} 
+            variant="outline" 
+            className="flex items-center gap-2"
+            disabled={isRefreshing}
+          >
+            <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            {isRefreshing ? 'Actualisation en cours...' : 'Actualiser les lieux'}
+          </Button>
         </div>
         
         {locations.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-lg text-gray-500">Aucun lieu n'a été trouvé.</p>
             <Leaf className="h-8 w-8 text-artPath-accent mx-auto mt-4" />
+            <Button 
+              onClick={handleRefresh} 
+              className="mt-4 bg-artPath-accent hover:bg-green-700"
+              disabled={isRefreshing}
+            >
+              Réessayer
+            </Button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
