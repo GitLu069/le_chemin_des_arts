@@ -5,25 +5,33 @@ import Layout from '@/components/Layout';
 import { getLocations, Location } from '@/data/locations';
 import QRCodeGenerator from '@/components/QRCodeGenerator';
 import { MapPin, Leaf } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 
 const Explore = () => {
   const [locations, setLocations] = useState<Location[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchLocationsData = async () => {
       try {
         const data = await getLocations();
+        console.log('Fetched locations:', data);
         setLocations(data);
       } catch (error) {
         console.error('Error fetching locations:', error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger les lieux du parcours.",
+          variant: "destructive",
+        });
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchLocationsData();
-  }, []);
+  }, [toast]);
 
   if (isLoading) {
     return (
@@ -49,39 +57,46 @@ const Explore = () => {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {locations.map((location) => (
-            <div key={location.id} className="location-card overflow-hidden flex flex-col h-full animate-scale-in">
-              <div className="location-card-header">
-                <h3 className="flex items-center gap-2">
-                  <MapPin className="h-5 w-5" />
-                  {location.name}
-                </h3>
-              </div>
-              
-              <div className="h-48 overflow-hidden">
-                <img 
-                  src={location.image} 
-                  alt={location.name}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              
-              <div className="p-5 flex flex-col items-center justify-center">
-                <div className="mb-4 flex justify-center">
-                  <QRCodeGenerator url={`/location/${location.slug}`} size={150} />
+        {locations.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-lg text-gray-500">Aucun lieu n'a été trouvé.</p>
+            <Leaf className="h-8 w-8 text-artPath-accent mx-auto mt-4" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {locations.map((location) => (
+              <div key={location.id} className="location-card overflow-hidden flex flex-col h-full animate-scale-in">
+                <div className="location-card-header">
+                  <h3 className="flex items-center gap-2">
+                    <MapPin className="h-5 w-5" />
+                    {location.name}
+                  </h3>
                 </div>
                 
-                <Link 
-                  to={`/location/${location.slug}`} 
-                  className="w-full text-center inline-flex items-center justify-center px-4 py-2 rounded-lg bg-artPath-accent text-white hover:bg-green-700 transition-colors"
-                >
-                  Découvrir ce lieu
-                </Link>
+                <div className="h-48 overflow-hidden">
+                  <img 
+                    src={location.image} 
+                    alt={location.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                
+                <div className="p-5 flex flex-col items-center justify-center">
+                  <div className="mb-4 flex justify-center">
+                    <QRCodeGenerator url={`/location/${location.slug}`} size={150} />
+                  </div>
+                  
+                  <Link 
+                    to={`/location/${location.slug}`} 
+                    className="w-full text-center inline-flex items-center justify-center px-4 py-2 rounded-lg bg-artPath-accent text-white hover:bg-green-700 transition-colors"
+                  >
+                    Découvrir ce lieu
+                  </Link>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </Layout>
   );

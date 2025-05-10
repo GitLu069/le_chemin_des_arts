@@ -5,33 +5,48 @@ import Layout from '@/components/Layout';
 import { getLocations, Location as LocationType } from '@/data/locations';
 import { MapPin, ArrowRight } from 'lucide-react';
 import FeedbackForm from '@/components/FeedbackForm';
+import { useToast } from '@/components/ui/use-toast';
 
 const Location = () => {
   const { slug } = useParams<{ slug: string }>();
   const [location, setLocation] = useState<LocationType | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [notFound, setNotFound] = useState<boolean>(false);
+  const { toast } = useToast();
   
   useEffect(() => {
     const fetchLocation = async () => {
       try {
         const locations = await getLocations();
+        console.log('Fetched locations for location page:', locations);
         const foundLocation = locations.find(loc => loc.slug === slug);
         if (foundLocation) {
+          console.log('Found location:', foundLocation);
           setLocation(foundLocation);
         } else {
+          console.log('Location not found with slug:', slug);
           setNotFound(true);
+          toast({
+            title: "Lieu non trouvé",
+            description: "Ce lieu n'existe pas dans notre parcours.",
+            variant: "destructive",
+          });
         }
       } catch (error) {
         console.error('Error fetching location:', error);
         setNotFound(true);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger les détails du lieu.",
+          variant: "destructive",
+        });
       } finally {
         setIsLoading(false);
       }
     };
     
     fetchLocation();
-  }, [slug]);
+  }, [slug, toast]);
   
   if (isLoading) {
     return (
@@ -86,6 +101,7 @@ const Location = () => {
                 alt={location.name}
                 className="w-full h-64 object-cover rounded-lg mb-4"
               />
+              <p className="text-gray-700">{location.description}</p>
             </div>
           </div>
           
