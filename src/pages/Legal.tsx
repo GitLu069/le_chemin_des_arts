@@ -52,11 +52,11 @@ const Legal = () => {
             
             <div className="mb-6">
               <h2 className="text-xl font-medium mb-2">Hébergement</h2>
-              <p className="mb-1">Le site est hébergé gratuitement via GitHub Pages</p>
-              <p className="mb-1">GitHub, Inc. – 88 Colin P Kelly Jr St, San Francisco, CA 94107, USA</p>
+              <p className="mb-1">OVH SAS</p>
+              <p className="mb-1">2 rue Kellermann - 59100 Roubaix - France</p>
               <div className="flex items-center gap-2 ml-1">
                 <Globe className="h-4 w-4 text-artPath-accent" />
-                <a href="https://pages.github.com" target="_blank" rel="noopener noreferrer" className="text-artPath-accent hover:underline">https://pages.github.com</a>
+                <a href="https://www.ovh.com" target="_blank" rel="noopener noreferrer" className="text-artPath-accent hover:underline">www.ovh.com</a>
               </div>
             </div>
             

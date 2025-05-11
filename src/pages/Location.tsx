@@ -169,7 +169,20 @@ const Location = () => {
                     e.currentTarget.src = "/placeholder.svg";
                   }}
                 />
-                <p className="text-gray-700">{location.description}</p>
+                <p className="text-gray-700 mb-4">{location.description}</p>
+                
+                {location.artists && location.artists.length > 0 && (
+                  <div className="mt-6">
+                    <h2 className="text-lg font-medium mb-3">Artistes présents</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {location.artists.map((artist, index) => (
+                        <div key={index} className="bg-gray-50 p-4 rounded-lg">
+                          <h3 className="font-medium text-artPath-accent">{artist}</h3>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

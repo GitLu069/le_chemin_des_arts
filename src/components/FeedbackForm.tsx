@@ -21,7 +21,6 @@ const feedbackSchema = z.object({
     }),
   rating: z.number().min(1).max(5),
   comment: z.string().optional(),
-  name: z.string().optional(),
 });
 
 type FeedbackFormValues = z.infer<typeof feedbackSchema>;
@@ -40,7 +39,6 @@ const FeedbackForm: React.FC<FeedbackFormProps> = ({ locationId }) => {
       groupSize: '',
       rating: 0,
       comment: '',
-      name: '',
     },
   });
 
@@ -55,7 +53,7 @@ const FeedbackForm: React.FC<FeedbackFormProps> = ({ locationId }) => {
         rating: data.rating,
         comment: data.comment || '',
         timestamp: new Date().toISOString(),
-        name: data.name || ''
+        name: '' // Champ nom supprimé, mais gardé vide pour la compatibilité
       });
       
       toast({
@@ -131,19 +129,6 @@ const FeedbackForm: React.FC<FeedbackFormProps> = ({ locationId }) => {
                   placeholder="Partagez votre opinion sur ce lieu..."
                   {...field}
                 />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nom / Prénom (facultatif)</FormLabel>
-              <FormControl>
-                <Input placeholder="Votre nom" {...field} />
               </FormControl>
             </FormItem>
           )}
