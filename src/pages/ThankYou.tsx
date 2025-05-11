@@ -6,9 +6,6 @@ import Layout from '@/components/Layout';
 const ThankYou = () => {
   const location = useLocation();
   const { from } = location.state || { from: undefined };
-
-  // Ne redirige plus si la page est accédée directement
-  // Permettant une meilleure expérience utilisateur
   
   return (
     <Layout>

@@ -11,9 +11,10 @@ interface LocationDetailsProps {
 
 // Define the feedback type to avoid 'unknown' type errors
 interface Feedback {
+  id?: number;
   timestamp: string;
   name?: string;
-  groupSize: number;
+  group_size: number;
   rating: number;
   comment?: string;
 }
@@ -103,7 +104,7 @@ const LocationDetails: React.FC<LocationDetailsProps> = ({
                   })}
                 </TableCell>
                 <TableCell>{feedback.name || 'Anonyme'}</TableCell>
-                <TableCell>{feedback.groupSize} personne(s)</TableCell>
+                <TableCell>{feedback.group_size} personne(s)</TableCell>
                 <TableCell>{feedback.rating}/5</TableCell>
                 <TableCell>{feedback.comment || '-'}</TableCell>
               </TableRow>

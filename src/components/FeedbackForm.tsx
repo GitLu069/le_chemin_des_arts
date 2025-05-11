@@ -63,9 +63,10 @@ const FeedbackForm: React.FC<FeedbackFormProps> = ({ locationId }) => {
         description: "Votre participation a été enregistrée avec succès.",
       });
       
-      // Rediriger vers la page de remerciement avec les informations sur la provenance
+      // Redirection vers la page de remerciement
       navigate('/merci', { state: { from: 'feedback' } });
     } catch (error) {
+      console.error("Erreur lors de l'enregistrement du feedback:", error);
       toast({
         title: "Erreur",
         description: "Un problème est survenu lors de l'envoi de votre avis.",
