@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main  # Ou la branche de ton choix pour déclencher le déploiement
+      - main  # Déclenchement du déploiement sur la branche main
 
 jobs:
   deploy:
@@ -14,34 +14,29 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Set up Node.js
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v3
       with:
-        node-version: '16'  # Remplace par la version de Node.js que tu utilises
+        node-version: '20'  # Version compatible avec vite, esbuild, eslint, etc.
 
     - name: Install dependencies
       run: npm install
 
     - name: Build the project
-      run: npm run build  # Assure-toi que cette commande est bien dans ton `package.json`
+      run: npm run build
 
     - name: Deploy to GitHub Pages
       env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}  # Assure-toi d'avoir ajouté ton token d'accès personnel dans les secrets
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       run: |
         git config --global user.name "GitHub Actions"
         git config --global user.email "github-actions@github.com"
-        
-        # Ajout de la remote pour le déploiement
+
         git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/GitLu069/le_chemin_des_arts.git
-        
-        # Déploiement vers la branche gh-pages
-        git fetch --unshallow  # Si tu as une copie git "shallow" de ton dépôt
-        git checkout -B gh-pages  # Crée ou vérifie la branche gh-pages
-        
-        # Copie des fichiers générés dans le dossier dist (ou le dossier de build)
-        cp -r dist/* .  # ou remplace "dist" par le répertoire de ton build
-        
-        # Ajoute, commit et push les fichiers vers gh-pages
+        git fetch --unshallow || true  # Ne plante pas si le dépôt n'est pas shallow
+        git checkout -B gh-pages
+
+        cp -r dist/* .
+
         git add -A
-        git commit -m "Deploy to GitHub Pages"
-        git push origin gh-pages --force  # "--force" pour forcer le push sur gh-pages (utile si tu écrases des fichiers)
+        git commit -m "Deploy to GitHub Pages" || echo "Nothing to commit"
+        git push origin gh-pages --force
