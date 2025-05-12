@@ -16,7 +16,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '20'  # Version compatible avec vite, esbuild, eslint, etc.
+        node-version: '20'  # Version compatible avec vite, esbuild, eslint, etc...
 
     - name: Install dependencies
       run: npm install
