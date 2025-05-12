@@ -8,7 +8,7 @@ interface QRCodeGeneratorProps {
 
 const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ url, size = 128 }) => {
   // Base URL pour le déploiement sur GitHub Pages avec HashRouter
-  const baseUrl = window.location.origin + '/le_chemin_des_arts/#/';
+  const baseUrl = window.location.origin + '/le_chemin_des_arts/#';
   
   // Si l'URL commence déjà par http, on garde l'URL telle quelle
   const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
