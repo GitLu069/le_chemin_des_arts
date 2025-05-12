@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 
@@ -8,9 +7,10 @@ interface QRCodeGeneratorProps {
 }
 
 const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ url, size = 128 }) => {
-  // Get the current URL base (protocol + hostname + port if any)
-  const baseUrl = window.location.origin;
-  // Combine with the relative URL
+  // Base URL pour le déploiement sur GitHub Pages avec HashRouter
+  const baseUrl = window.location.origin + '/le_chemin_des_arts/#/';
+  
+  // Si l'URL commence déjà par http, on garde l'URL telle quelle
   const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
   
   return (
