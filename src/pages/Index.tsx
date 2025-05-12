@@ -12,7 +12,7 @@ const Index = () => {
         <div 
           className="absolute inset-0 bg-cover bg-center" 
           style={{
-            backgroundImage: "url('/lovable-uploads/4187597f-6ee7-46d0-a0a8-5326f6393e43.png')",
+            backgroundImage: "url('/le_chemin_des_arts/lovable-uploads/5a036742-6bf5-4d21-9d08-ccb2328d4e95.png')",
             filter: "brightness(0.9)"
           }}
         />
