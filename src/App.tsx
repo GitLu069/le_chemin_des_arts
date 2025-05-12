@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { HashRouter, Routes, Route } from "react-router-dom"; // Utilisation de HashRouter
+import { BrowserRouter, Routes, Route } from "react-router-dom"; 
 
 import Index from "./pages/Index";
 import Explore from "./pages/Explore";
@@ -23,7 +23,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <HashRouter> {/* Remplacement de BrowserRouter par HashRouter */}
+      <BrowserRouter> {/* Remplacement de BrowserRouter par HashRouter */}
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/explore" element={<Explore />} />
@@ -38,7 +38,7 @@ const App = () => (
           <Route path="/:slug" element={<Artwork />} />
           <Route path="*" element={<NotFound />} /> {/* Remplacement de Index par NotFound pour les 404 */}
         </Routes>
-      </HashRouter>
+      </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );
