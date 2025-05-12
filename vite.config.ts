@@ -4,7 +4,7 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
-  base: '/le_chemin_des_arts/',  // Chemin de base pour GitHub Pages
+  base: '/le_chemin_des_arts/',  // Assurez-vous que c'est le bon chemin pour GitHub Pages
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
