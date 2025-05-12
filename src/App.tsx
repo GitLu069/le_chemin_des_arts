@@ -37,7 +37,7 @@ const App = () => (
           <Route path="/location/:slug" element={<Location />} />
           <Route path="/oeuvre-:id" element={<Artwork />} />
           <Route path="/:slug" element={<Artwork />} />
-          <Route path="*" element={<NotFound />} />
+          <Route path="*" element={<Index />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
