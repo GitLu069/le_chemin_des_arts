@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://gitlu069.github.io/le_chemin_des_arts",   // Ajouté pour GitHub Pages
+  "homepage": "https://gitlu069.github.io/le_chemin_des_arts",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
