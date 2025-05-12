@@ -3,31 +3,45 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main
+      - main  # Ou la branche de ton choix pour déclencher le déploiement
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: Checkout the repository
       uses: actions/checkout@v2
 
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: '16'
+        node-version: '16'  # Remplace par la version de Node.js que tu utilises
 
     - name: Install dependencies
       run: npm install
 
-    - name: Build project
-      run: npm run build
+    - name: Build the project
+      run: npm run build  # Assure-toi que cette commande est bien dans ton `package.json`
 
     - name: Deploy to GitHub Pages
       env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}  # Assure-toi d'avoir ajouté ton token d'accès personnel dans les secrets
       run: |
         git config --global user.name "GitHub Actions"
         git config --global user.email "github-actions@github.com"
+        
+        # Ajout de la remote pour le déploiement
         git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/GitLu069/le_chemin_des_arts.git
-        git push origin gh-pages
+        
+        # Déploiement vers la branche gh-pages
+        git fetch --unshallow  # Si tu as une copie git "shallow" de ton dépôt
+        git checkout -B gh-pages  # Crée ou vérifie la branche gh-pages
+        
+        # Copie des fichiers générés dans le dossier dist (ou le dossier de build)
+        cp -r dist/* .  # ou remplace "dist" par le répertoire de ton build
+        
+        # Ajoute, commit et push les fichiers vers gh-pages
+        git add -A
+        git commit -m "Deploy to GitHub Pages"
+        git push origin gh-pages --force  # "--force" pour forcer le push sur gh-pages (utile si tu écrases des fichiers)
