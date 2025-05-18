@@ -109,11 +109,6 @@ const Explore = () => {
     e.currentTarget.src = "/placeholder.svg";
   }}
 />
-                      onError={(e) => {
-                        console.error(`Error loading image for ${location.name}`);
-                        e.currentTarget.src = "/placeholder.svg";
-                      }}
-                    />
                   </div>
                 </CardHeader>
                 
