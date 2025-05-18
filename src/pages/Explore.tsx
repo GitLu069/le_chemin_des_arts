@@ -104,7 +104,10 @@ const Explore = () => {
                     <img 
                       src={location.image} 
                       alt={location.name}
-                      className="w-full h-full object-cover"
+                      className={
+  `w-full h-full ${
+    location.slug === "mairie" ? "object-contain bg-black" : "object-cover"
+  }`
                       onError={(e) => {
                         console.error(`Error loading image for ${location.name}`);
                         e.currentTarget.src = "/placeholder.svg";
