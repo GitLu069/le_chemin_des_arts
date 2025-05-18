@@ -96,25 +96,19 @@ const Explore = () => {
             <Leaf className="h-8 w-8 text-artPath-accent mx-auto mt-4" />
           </div>
         ) : (
-<CardHeader className="p-0">
-  <div className="h-48 overflow-hidden">
-    <img 
-      src={location.image} 
-      alt={location.name}
-      className={
-        `w-full h-full ${
-          location.slug === "salle-cruy" ? "object-contain bg-black" : "object-cover"
-        }`
-      }
-      onError={(e) => {
-        console.error(`Error loading image for ${location.name}`);
-        e.currentTarget.src = "/placeholder.svg";
-      }}
-    />
-  </div>
-</CardHeader>
-
-                
+ <CardHeader className="p-0">
+                  <div className="h-48 overflow-hidden">
+                    <img 
+                      src={location.image} 
+                      alt={location.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        console.error(`Error loading image for ${location.name}`);
+                        e.currentTarget.src = "/placeholder.svg";
+                      }}
+                    />
+                  </div>
+                </CardHeader>    
                 <CardContent className="p-5 flex-1 flex flex-col">
                   <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                     <MapPin className="h-5 w-5" />
