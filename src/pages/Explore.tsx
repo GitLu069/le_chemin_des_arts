@@ -96,18 +96,19 @@ const Explore = () => {
             <Leaf className="h-8 w-8 text-artPath-accent mx-auto mt-4" />
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {locations.map((location) => (
-              <Card key={location.id} className="overflow-hidden flex flex-col h-full animate-scale-in">
-                <CardHeader className="p-0">
-                  <div className="h-48 overflow-hidden">
-                    <img 
-                      src={location.image} 
-                      alt={location.name}
-                      className={
-  `w-full h-full ${
-    location.slug === "mairie" ? "object-contain bg-black" : "object-cover"
-  }`
+<img 
+  src={location.image} 
+  alt={location.name}
+  className={
+    `w-full h-full ${
+      location.slug === "mairie" ? "object-contain bg-black" : "object-cover"
+    }`
+  }
+  onError={(e) => {
+    console.error(`Error loading image for ${location.name}`);
+    e.currentTarget.src = "/placeholder.svg";
+  }}
+/>
                       onError={(e) => {
                         console.error(`Error loading image for ${location.name}`);
                         e.currentTarget.src = "/placeholder.svg";
