@@ -189,7 +189,7 @@ const Location = () => {
           
           <Card className="mb-8">
             <CardHeader>
-              <h2 className="text-xl font-medium">Donnez-nous votre avis sur ce lieu</h2>
+              <h2 className="text-xl font-medium">Exprimez votre avis sur les créations artistiques de ce lieu</h2>
             </CardHeader>
             <CardContent>
               <FeedbackForm locationId={location.id} />
