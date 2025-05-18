@@ -101,7 +101,7 @@ const Explore = () => {
   alt={location.name}
   className={
     `w-full h-full ${
-      location.slug === "mairie" ? "object-contain bg-black" : "object-cover"
+      location.slug === "salle-cruy" ? "object-contain bg-black" : "object-cover"
     }`
   }
   onError={(e) => {
